@@ -30,6 +30,7 @@ export interface Project {
   credentials: Credential[]
   emailSettings?: EmailSettings
   tasks: Task[]
+  progress: number
   createdAt: Date
   updatedAt: Date
 }
@@ -40,12 +41,30 @@ export type ViewType = 'dashboard' | 'settings' | 'help'
 
 export type PathFormat = 'windows' | 'mac'
 
+export type AuthView = 'login' | 'signup' | 'forgot-password'
+
+export type ProjectViewMode = 'grid' | 'list'
+
+export interface User {
+  username: string
+  email: string
+  avatar?: string
+}
+
+export interface SpacemailSMTP {
+  incomingHost: string
+  incomingPort: string
+  outgoingHost: string
+  outgoingPort: string
+  username: string
+  password: string
+  ssl: boolean
+}
+
 export interface AppSettings {
   email: string
   pathFormat: PathFormat
-  smtp: {
-    host: string
-    port: string
-    apiKey: string
-  }
+  theme: 'dark' | 'light'
+  projectViewMode: ProjectViewMode
+  smtp: SpacemailSMTP
 }

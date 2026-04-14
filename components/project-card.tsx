@@ -36,6 +36,11 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
     }
   }
 
+  // Calculate progress from tasks
+  const totalTasks = project.tasks.length
+  const completedTasks = project.tasks.filter(t => t.completed).length
+  const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
+
   return (
     <div
       className="group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer"
@@ -230,6 +235,26 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           </DropdownMenu>
         </div>
 
+        {/* Progress Bar */}
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs" style={{ color: '#888888' }}>Progress</span>
+            <span className="text-xs font-medium" style={{ color: '#4ADE80' }}>{calculatedProgress}%</span>
+          </div>
+          <div 
+            className="h-1.5 rounded-full overflow-hidden"
+            style={{ backgroundColor: '#2a2a2a' }}
+          >
+            <div 
+              className="h-full rounded-full transition-all duration-300"
+              style={{ 
+                width: `${calculatedProgress}%`,
+                backgroundColor: '#4ADE80'
+              }}
+            />
+          </div>
+        </div>
+
         {/* Stats */}
         <div className="flex items-center gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #2a2a2a' }}>
           <div className="flex items-center gap-1.5">
@@ -246,7 +271,7 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
               }}
             />
             <span className="text-xs" style={{ color: '#888888' }}>
-              {project.tasks.filter(t => !t.completed).length} tasks
+              {completedTasks}/{totalTasks} tasks
             </span>
           </div>
         </div>

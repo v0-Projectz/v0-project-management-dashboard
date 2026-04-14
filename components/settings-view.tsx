@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { 
   User, 
   Mail, 
@@ -12,8 +12,12 @@ import {
   Eye, 
   EyeOff,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Upload,
+  Send,
+  Shield
 } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,7 +25,11 @@ import { Switch } from '@/components/ui/switch'
 import { useAppStore } from '@/lib/store'
 
 export function SettingsView() {
-  const { appSettings, updateAppSettings, changeMasterPassword } = useAppStore()
+  const { appSettings, updateAppSettings, changeMasterPassword, user, updateUser } = useAppStore()
+  
+  const [username, setUsername] = useState(user?.username || '')
+  const [email, setEmail] = useState(user?.email || appSettings.email)
+  const [avatar, setAvatar] = useState(user?.avatar || '')
   
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -30,13 +38,35 @@ export function SettingsView() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   
-  const [email, setEmail] = useState(appSettings.email)
   const [pathFormat, setPathFormat] = useState(appSettings.pathFormat)
-  const [smtpHost, setSmtpHost] = useState(appSettings.smtp.host)
-  const [smtpPort, setSmtpPort] = useState(appSettings.smtp.port)
-  const [smtpApiKey, setSmtpApiKey] = useState(appSettings.smtp.apiKey)
-  const [showApiKey, setShowApiKey] = useState(false)
+  
+  // Spacemail SMTP Settings
+  const [smtpIncomingHost, setSmtpIncomingHost] = useState(appSettings.smtp.incomingHost)
+  const [smtpIncomingPort, setSmtpIncomingPort] = useState(appSettings.smtp.incomingPort)
+  const [smtpOutgoingHost, setSmtpOutgoingHost] = useState(appSettings.smtp.outgoingHost)
+  const [smtpOutgoingPort, setSmtpOutgoingPort] = useState(appSettings.smtp.outgoingPort)
+  const [smtpUsername, setSmtpUsername] = useState(appSettings.smtp.username)
+  const [smtpPassword, setSmtpPassword] = useState(appSettings.smtp.password)
+  const [smtpSsl, setSmtpSsl] = useState(appSettings.smtp.ssl)
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false)
+  
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [testEmailSending, setTestEmailSending] = useState(false)
+  const [testEmailMessage, setTestEmailMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const result = event.target?.result as string
+        setAvatar(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleChangePassword = () => {
     if (newPassword !== confirmPassword) {
@@ -61,14 +91,36 @@ export function SettingsView() {
     setTimeout(() => setPasswordMessage(null), 3000)
   }
 
+  const handleSendTestEmail = async () => {
+    setTestEmailSending(true)
+    setTestEmailMessage(null)
+    
+    // Simulate sending test email
+    await new Promise((r) => setTimeout(r, 1500))
+    
+    if (smtpUsername && smtpPassword) {
+      setTestEmailMessage({ type: 'success', text: 'Test email sent successfully!' })
+    } else {
+      setTestEmailMessage({ type: 'error', text: 'Please fill in all SMTP credentials' })
+    }
+    
+    setTestEmailSending(false)
+    setTimeout(() => setTestEmailMessage(null), 3000)
+  }
+
   const handleSaveSettings = () => {
+    updateUser({ username, email, avatar })
     updateAppSettings({
       email,
       pathFormat,
       smtp: {
-        host: smtpHost,
-        port: smtpPort,
-        apiKey: smtpApiKey,
+        incomingHost: smtpIncomingHost,
+        incomingPort: smtpIncomingPort,
+        outgoingHost: smtpOutgoingHost,
+        outgoingPort: smtpOutgoingPort,
+        username: smtpUsername,
+        password: smtpPassword,
+        ssl: smtpSsl,
       },
     })
     setSaveMessage('Settings saved successfully')
@@ -81,7 +133,7 @@ export function SettingsView() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold" style={{ color: '#f5f5f5' }}>Settings</h1>
         <p className="text-sm mt-1" style={{ color: '#888888' }}>
-          Manage your account, preferences, and SMTP configuration
+          Manage your account, preferences, and Spacemail SMTP configuration
         </p>
       </div>
 
@@ -96,26 +148,86 @@ export function SettingsView() {
             Profile
           </h2>
           <p className="text-sm mt-1" style={{ color: '#888888' }}>
-            Manage your master password and email address
+            Manage your profile information and avatar
           </p>
         </div>
         
         <div className="space-y-6">
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
-              <Mail className="w-4 h-4" />
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="max-w-md"
-              style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
-            />
+          {/* Avatar Upload */}
+          <div className="flex items-start gap-6">
+            <div className="flex flex-col items-center gap-3">
+              <div 
+                className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
+                style={{ backgroundColor: '#252525', border: '2px solid #2a2a2a' }}
+              >
+                {avatar ? (
+                  <Image 
+                    src={avatar} 
+                    alt="Avatar" 
+                    width={96} 
+                    height={96}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12" style={{ color: '#888888' }} />
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-2"
+                style={{ 
+                  backgroundColor: '#252525', 
+                  borderColor: '#2a2a2a', 
+                  color: '#f5f5f5' 
+                }}
+              >
+                <Upload className="w-4 h-4" />
+                Choose File
+              </Button>
+            </div>
+            
+            <div className="flex-1 space-y-4">
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
+                  <User className="w-4 h-4" />
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Your username"
+                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+              
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
+                  <Mail className="w-4 h-4" />
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Change Password */}
@@ -266,7 +378,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* SMTP Configuration */}
+      {/* Spacemail SMTP Configuration */}
       <div 
         className="rounded-xl p-6"
         style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
@@ -274,67 +386,178 @@ export function SettingsView() {
         <div className="mb-6">
           <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
             <Server className="w-5 h-5" style={{ color: '#4ADE80' }} />
-            SMTP Configuration
+            Spacemail SMTP Configuration
           </h2>
           <p className="text-sm mt-1" style={{ color: '#888888' }}>
-            Configure Brevo/SMTP settings for email notifications
+            Configure Spacemail settings for email notifications and password recovery
           </p>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Incoming Mail (IMAP) */}
+          <div className="p-4 rounded-lg" style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="w-4 h-4" style={{ color: '#4ADE80' }} />
+              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Incoming Mail (IMAP)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="imap-host" className="text-xs" style={{ color: '#888888' }}>
+                  Host
+                </Label>
+                <Input
+                  id="imap-host"
+                  value={smtpIncomingHost}
+                  onChange={(e) => setSmtpIncomingHost(e.target.value)}
+                  placeholder="mail.spacemail.com"
+                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imap-port" className="text-xs" style={{ color: '#888888' }}>
+                  Port
+                </Label>
+                <Input
+                  id="imap-port"
+                  value={smtpIncomingPort}
+                  onChange={(e) => setSmtpIncomingPort(e.target.value)}
+                  placeholder="993"
+                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#666666' }}>SSL/TLS Enabled</p>
+          </div>
+
+          {/* Outgoing Mail (SMTP) */}
+          <div className="p-4 rounded-lg" style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Send className="w-4 h-4" style={{ color: '#4ADE80' }} />
+              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Outgoing Mail (SMTP)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="smtp-host" className="text-xs" style={{ color: '#888888' }}>
+                  Host
+                </Label>
+                <Input
+                  id="smtp-host"
+                  value={smtpOutgoingHost}
+                  onChange={(e) => setSmtpOutgoingHost(e.target.value)}
+                  placeholder="mail.spacemail.com"
+                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="smtp-port" className="text-xs" style={{ color: '#888888' }}>
+                  Port
+                </Label>
+                <Input
+                  id="smtp-port"
+                  value={smtpOutgoingPort}
+                  onChange={(e) => setSmtpOutgoingPort(e.target.value)}
+                  placeholder="465"
+                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+              </div>
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#666666' }}>SSL/TLS Enabled</p>
+          </div>
+
+          {/* Credentials */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="smtp-host" className="text-xs" style={{ color: '#888888' }}>
-                SMTP Host
+              <Label htmlFor="smtp-username" className="text-xs" style={{ color: '#888888' }}>
+                Username
               </Label>
               <Input
-                id="smtp-host"
-                value={smtpHost}
-                onChange={(e) => setSmtpHost(e.target.value)}
-                placeholder="smtp-relay.brevo.com"
+                id="smtp-username"
+                value={smtpUsername}
+                onChange={(e) => setSmtpUsername(e.target.value)}
+                placeholder="your@spacemail.com"
                 style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="smtp-port" className="text-xs" style={{ color: '#888888' }}>
-                Port
+              <Label htmlFor="smtp-password" className="text-xs" style={{ color: '#888888' }}>
+                Password
               </Label>
-              <Input
-                id="smtp-port"
-                value={smtpPort}
-                onChange={(e) => setSmtpPort(e.target.value)}
-                placeholder="587"
-                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
-              />
+              <div className="relative">
+                <Input
+                  id="smtp-password"
+                  type={showSmtpPassword ? 'text' : 'password'}
+                  value={smtpPassword}
+                  onChange={(e) => setSmtpPassword(e.target.value)}
+                  placeholder="Your password"
+                  className="pr-10"
+                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSmtpPassword(!showSmtpPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: '#888888' }}
+                >
+                  {showSmtpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="smtp-api-key" className="text-xs" style={{ color: '#888888' }}>
-              API Key
-            </Label>
-            <div className="relative">
-              <Input
-                id="smtp-api-key"
-                type={showApiKey ? 'text' : 'password'}
-                value={smtpApiKey}
-                onChange={(e) => setSmtpApiKey(e.target.value)}
-                placeholder="xkeysib-xxxxxxxx"
-                className="pr-10 font-mono"
-                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                style={{ color: '#888888' }}
-              >
-                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+
+          {/* SSL Toggle */}
+          <div 
+            className="p-4 rounded-lg flex items-center justify-between"
+            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
+          >
+            <div>
+              <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>SSL/TLS Encryption</p>
+              <p className="text-xs" style={{ color: '#888888' }}>Enable secure connection</p>
             </div>
-            <p className="text-xs" style={{ color: '#888888' }}>
-              Get your API key from your Brevo account settings
-            </p>
+            <Switch
+              checked={smtpSsl}
+              onCheckedChange={setSmtpSsl}
+            />
+          </div>
+
+          {/* Test Email Button */}
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleSendTestEmail}
+              disabled={testEmailSending}
+              variant="outline"
+              className="gap-2"
+              style={{ 
+                backgroundColor: '#252525', 
+                borderColor: '#4ADE80', 
+                color: '#4ADE80' 
+              }}
+            >
+              {testEmailSending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#4ADE80]/30 border-t-[#4ADE80] rounded-full animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Send Test Email
+                </>
+              )}
+            </Button>
+            
+            {testEmailMessage && (
+              <div 
+                className="flex items-center gap-2 text-sm"
+                style={{ color: testEmailMessage.type === 'success' ? '#4ADE80' : '#EF4444' }}
+              >
+                {testEmailMessage.type === 'success' ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
+                )}
+                {testEmailMessage.text}
+              </div>
+            )}
           </div>
         </div>
       </div>

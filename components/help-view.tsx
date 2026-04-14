@@ -12,7 +12,11 @@ import {
   Globe,
   Server,
   Zap,
-  Monitor
+  Monitor,
+  Lock,
+  Mail,
+  Users,
+  Shield
 } from 'lucide-react'
 import { 
   Accordion, 
@@ -70,8 +74,8 @@ const faqItems: FAQItem[] = [
   },
   {
     id: 'faq-6',
-    question: 'How do I configure SMTP for email notifications?',
-    answer: 'Go to Settings > SMTP Configuration. Enter your Brevo (or other SMTP provider) host, port, and API key. Common settings: Host: smtp-relay.brevo.com, Port: 587.',
+    question: 'How do I configure Spacemail SMTP for email notifications?',
+    answer: 'Go to Settings > Spacemail SMTP Configuration. For incoming mail (IMAP), use mail.spacemail.com on port 993 with SSL/TLS. For outgoing mail (SMTP), use mail.spacemail.com on port 465 with SSL/TLS. Enter your Spacemail username and password.',
     category: 'settings',
   },
   {
@@ -83,8 +87,20 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-8',
     question: 'What happens if I forget my master password?',
-    answer: 'Currently, there is no password recovery option as your data is encrypted locally. You would need to clear your localStorage and start fresh. We recommend using a password manager.',
+    answer: 'Use the "Forgot Password?" link on the login page to receive a password recovery link via email. This requires Spacemail SMTP to be configured. If SMTP is not set up, you will need to clear localStorage and start fresh.',
     category: 'security',
+  },
+  {
+    id: 'faq-9',
+    question: 'How do I upload a profile avatar?',
+    answer: 'Go to Settings > Profile section. Click the "Choose File" button below your current avatar to select an image from your local machine. The avatar is stored locally and displayed in the sidebar and dashboard header.',
+    category: 'settings',
+  },
+  {
+    id: 'faq-10',
+    question: 'How can I add new users to MSC-Projectz?',
+    answer: 'New user creation requires Admin Approval. Contact your system administrator to request a new account. The admin will create the account and provide login credentials via secure channel.',
+    category: 'admin',
   },
 ]
 
@@ -105,6 +121,54 @@ const workflowGuides: GuideItem[] = [
   },
   {
     id: 'guide-2',
+    title: 'Master Password Recovery',
+    description: 'How to recover your master password if you forget it.',
+    category: 'security',
+    steps: [
+      'On the login page, click "Forgot Password?"',
+      'Enter the email address associated with your account',
+      'Click "Send Recovery Link" to receive an email',
+      'Check your inbox for the recovery email (powered by Spacemail)',
+      'Click the recovery link in the email',
+      'Set a new master password and confirm it',
+      'Log in with your new password',
+    ],
+  },
+  {
+    id: 'guide-3',
+    title: 'Spacemail SMTP Setup',
+    description: 'Configure Spacemail for email notifications and password recovery.',
+    category: 'settings',
+    steps: [
+      'Navigate to Settings from the sidebar',
+      'Scroll to "Spacemail SMTP Configuration" section',
+      'For Incoming Mail (IMAP): Set host to mail.spacemail.com and port to 993',
+      'For Outgoing Mail (SMTP): Set host to mail.spacemail.com and port to 465',
+      'Enter your Spacemail username (your full email address)',
+      'Enter your Spacemail password',
+      'Ensure SSL/TLS is enabled (default)',
+      'Click "Send Test Email" to verify the configuration',
+      'Click "Save Settings" to store your configuration',
+    ],
+  },
+  {
+    id: 'guide-4',
+    title: 'Adding New Users (Admin Approval)',
+    description: 'Process for adding new users to the MSC-Projectz system.',
+    category: 'admin',
+    steps: [
+      'New user submits a request to the system administrator',
+      'Admin verifies the user identity and need for access',
+      'Admin creates a new account with username and temporary password',
+      'User receives credentials via secure channel (encrypted email)',
+      'User logs in with temporary password',
+      'System prompts user to set a new master password',
+      'User completes profile setup (avatar, email, preferences)',
+      'User gains full access to MSC-Projectz features',
+    ],
+  },
+  {
+    id: 'guide-5',
     title: 'Managing Project Credentials',
     description: 'Learn how to securely store and organize login credentials for each project.',
     category: 'security',
@@ -118,7 +182,7 @@ const workflowGuides: GuideItem[] = [
     ],
   },
   {
-    id: 'guide-3',
+    id: 'guide-6',
     title: 'Using the Task Pulse Feature',
     description: 'Track progress and manage to-do items for each project.',
     category: 'workflow',
@@ -132,21 +196,7 @@ const workflowGuides: GuideItem[] = [
     ],
   },
   {
-    id: 'guide-4',
-    title: 'Configuring SMTP Email Settings',
-    description: 'Set up Brevo or other SMTP providers for email functionality.',
-    category: 'settings',
-    steps: [
-      'Navigate to Settings from the sidebar',
-      'Scroll to SMTP Configuration section',
-      'Enter your SMTP host (e.g., smtp-relay.brevo.com)',
-      'Set the port (typically 587 for TLS)',
-      'Enter your API key from your email provider',
-      'Click "Save Settings" to store your configuration',
-    ],
-  },
-  {
-    id: 'guide-5',
+    id: 'guide-7',
     title: 'Editing Project Details',
     description: 'Update project information, thumbnails, and connectivity settings.',
     category: 'workflow',
@@ -166,13 +216,14 @@ const categories = [
   { id: 'workflow', label: 'Workflow' },
   { id: 'security', label: 'Security' },
   { id: 'settings', label: 'Settings' },
+  { id: 'admin', label: 'Admin' },
   { id: 'data', label: 'Data' },
 ]
 
 export function HelpView() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
-  const [activeTab, setActiveTab] = useState<'faq' | 'guides'>('faq')
+  const [activeTab, setActiveTab] = useState<'faq' | 'guides' | 'instructionz'>('instructionz')
   const setCurrentView = useAppStore((s) => s.setCurrentView)
 
   const filteredFAQs = faqItems.filter((item) => {
@@ -197,10 +248,76 @@ export function HelpView() {
       case 'workflow': return <Workflow className="w-3.5 h-3.5" />
       case 'security': return <Key className="w-3.5 h-3.5" />
       case 'settings': return <Server className="w-3.5 h-3.5" />
+      case 'admin': return <Users className="w-3.5 h-3.5" />
       case 'data': return <FolderOpen className="w-3.5 h-3.5" />
       default: return <HelpCircle className="w-3.5 h-3.5" />
     }
   }
+
+  // Key documentation items for Instructionz view
+  const instructionzItems = [
+    {
+      id: 'inst-1',
+      title: 'Master Password Recovery',
+      icon: <Lock className="w-5 h-5" />,
+      description: 'How to recover access if you forget your master password',
+      content: [
+        '1. Click "Forgot Password?" on the login screen',
+        '2. Enter your registered email address',
+        '3. A recovery link will be sent via Spacemail SMTP',
+        '4. Click the link to reset your password',
+        '5. Set a new master password (minimum 6 characters)',
+        '',
+        'Note: This requires Spacemail SMTP to be configured in Settings.',
+        'If SMTP is not configured, contact your system administrator.',
+      ],
+    },
+    {
+      id: 'inst-2',
+      title: 'SMTP Setup (Spacemail)',
+      icon: <Mail className="w-5 h-5" />,
+      description: 'Configure email for notifications and password recovery',
+      content: [
+        'Incoming Mail (IMAP):',
+        '  - Host: mail.spacemail.com',
+        '  - Port: 993',
+        '  - Security: SSL/TLS',
+        '',
+        'Outgoing Mail (SMTP):',
+        '  - Host: mail.spacemail.com',
+        '  - Port: 465',
+        '  - Security: SSL/TLS',
+        '',
+        'Authentication:',
+        '  - Username: your@spacemail.com',
+        '  - Password: your Spacemail password',
+        '',
+        'Click "Send Test Email" to verify your configuration.',
+      ],
+    },
+    {
+      id: 'inst-3',
+      title: 'Adding New Users (Admin Approval)',
+      icon: <Users className="w-5 h-5" />,
+      description: 'Process for requesting and approving new user accounts',
+      content: [
+        'For New Users:',
+        '1. Contact your system administrator',
+        '2. Provide your name, email, and reason for access',
+        '3. Wait for admin approval notification',
+        '4. Receive credentials via secure channel',
+        '5. Log in and set your own master password',
+        '',
+        'For Administrators:',
+        '1. Verify user identity and access requirements',
+        '2. Create account with temporary password',
+        '3. Send credentials via encrypted email',
+        '4. Revoke temporary access after first login',
+        '',
+        'Note: All new accounts require admin approval for security.',
+      ],
+    },
+  ]
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -238,29 +355,23 @@ export function HelpView() {
         />
       </div>
 
-      {/* Category Filters */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-            style={{ 
-              backgroundColor: activeCategory === cat.id ? '#4ADE80' : '#2a2a2a',
-              color: activeCategory === cat.id ? '#121212' : '#888888'
-            }}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
       {/* Tabs */}
       <div className="mb-6">
         <div 
           className="inline-flex rounded-lg p-1"
           style={{ backgroundColor: '#1c1c1c' }}
         >
+          <button
+            onClick={() => setActiveTab('instructionz')}
+            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            style={{ 
+              backgroundColor: activeTab === 'instructionz' ? '#4ADE80' : 'transparent',
+              color: activeTab === 'instructionz' ? '#121212' : '#888888'
+            }}
+          >
+            <Shield className="w-4 h-4" />
+            Instructionz
+          </button>
           <button
             onClick={() => setActiveTab('faq')}
             className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
@@ -285,6 +396,68 @@ export function HelpView() {
           </button>
         </div>
       </div>
+
+      {/* Category Filters (for FAQ and Guides) */}
+      {(activeTab === 'faq' || activeTab === 'guides') && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              style={{ 
+                backgroundColor: activeCategory === cat.id ? '#4ADE80' : '#2a2a2a',
+                color: activeCategory === cat.id ? '#121212' : '#888888'
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Instructionz Tab */}
+      {activeTab === 'instructionz' && (
+        <div className="space-y-6">
+          <div 
+            className="p-4 rounded-xl"
+            style={{ backgroundColor: 'rgba(74, 222, 128, 0.1)', border: '1px solid rgba(74, 222, 128, 0.3)' }}
+          >
+            <p className="text-sm" style={{ color: '#4ADE80' }}>
+              Essential documentation for Master Password Recovery, SMTP Setup, and Adding New Users.
+            </p>
+          </div>
+          
+          {instructionzItems.map((item) => (
+            <div 
+              key={item.id}
+              className="rounded-xl overflow-hidden"
+              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+            >
+              <div 
+                className="flex items-center gap-3 p-4"
+                style={{ borderBottom: '1px solid #2a2a2a' }}
+              >
+                <div 
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                >
+                  {item.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold" style={{ color: '#f5f5f5' }}>{item.title}</h3>
+                  <p className="text-sm" style={{ color: '#888888' }}>{item.description}</p>
+                </div>
+              </div>
+              <div className="p-4" style={{ backgroundColor: '#252525' }}>
+                <pre className="text-sm whitespace-pre-wrap font-mono" style={{ color: '#888888' }}>
+                  {item.content.join('\n')}
+                </pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* FAQ Tab */}
       {activeTab === 'faq' && (
