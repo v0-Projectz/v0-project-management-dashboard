@@ -127,7 +127,13 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       {/* Footer */}
       <div className="p-3" style={{ borderTop: '1px solid #2a2a2a' }}>
         <button
-          onClick={logout}
+          onClick={() => {
+            // Clear all localStorage keys before logout
+            localStorage.clear()
+            logout()
+            // Force page reload to reset all state
+            window.location.reload()
+          }}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm hover:bg-red-500/10',
             collapsed && 'justify-center px-0'

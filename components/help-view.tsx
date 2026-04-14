@@ -16,7 +16,10 @@ import {
   Lock,
   Mail,
   Users,
-  Shield
+  Shield,
+  Copy,
+  Check,
+  ChevronDown
 } from 'lucide-react'
 import { 
   Accordion, 
@@ -224,7 +227,27 @@ export function HelpView() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeTab, setActiveTab] = useState<'faq' | 'guides' | 'instructionz'>('instructionz')
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
+  const [copiedField, setCopiedField] = useState<string | null>(null)
   const setCurrentView = useAppStore((s) => s.setCurrentView)
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    )
+  }
+
+  const copyToClipboard = async (text: string, fieldId: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedField(fieldId)
+      setTimeout(() => setCopiedField(null), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   const filteredFAQs = faqItems.filter((item) => {
     const matchesSearch = 
@@ -277,22 +300,20 @@ export function HelpView() {
       title: 'SMTP Setup (Spacemail)',
       icon: <Mail className="w-5 h-5" />,
       description: 'Configure email for notifications and password recovery',
+      smtpFields: {
+        incoming: {
+          host: 'mail.spacemail.com',
+          port: '993',
+          security: 'SSL/TLS'
+        },
+        outgoing: {
+          host: 'mail.spacemail.com',
+          port: '465',
+          security: 'SSL/TLS'
+        }
+      },
       content: [
-        'Incoming Mail (IMAP):',
-        '  - Host: mail.spacemail.com',
-        '  - Port: 993',
-        '  - Security: SSL/TLS',
-        '',
-        'Outgoing Mail (SMTP):',
-        '  - Host: mail.spacemail.com',
-        '  - Port: 465',
-        '  - Security: SSL/TLS',
-        '',
-        'Authentication:',
-        '  - Username: your@spacemail.com',
-        '  - Password: your Spacemail password',
-        '',
-        'Click "Send Test Email" to verify your configuration.',
+        'Click "Send Test Email" in Settings to verify your configuration.',
       ],
     },
     {
@@ -418,7 +439,7 @@ export function HelpView() {
 
       {/* Instructionz Tab */}
       {activeTab === 'instructionz' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div 
             className="p-4 rounded-xl"
             style={{ backgroundColor: 'rgba(74, 222, 128, 0.1)', border: '1px solid rgba(74, 222, 128, 0.3)' }}
@@ -428,36 +449,155 @@ export function HelpView() {
             </p>
           </div>
           
-          {instructionzItems.map((item) => (
-            <div 
-              key={item.id}
-              className="rounded-xl overflow-hidden"
-              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-            >
+          {instructionzItems.map((item) => {
+            const isExpanded = expandedSections.includes(item.id)
+            return (
               <div 
-                className="flex items-center gap-3 p-4"
-                style={{ borderBottom: '1px solid #2a2a2a' }}
+                key={item.id}
+                className="rounded-xl overflow-hidden transition-all"
+                style={{ 
+                  backgroundColor: '#1c1c1c', 
+                  border: isExpanded ? '1px solid #4ADE80' : '1px solid #2a2a2a',
+                  boxShadow: isExpanded ? '0 0 12px rgba(74, 222, 128, 0.15)' : 'none'
+                }}
               >
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                <button 
+                  onClick={() => toggleSection(item.id)}
+                  className="flex items-center gap-3 p-4 w-full text-left hover:bg-[#252525] transition-colors"
                 >
-                  {item.icon}
-                </div>
-                <div>
-                  <h3 className="font-semibold" style={{ color: '#f5f5f5' }}>{item.title}</h3>
-                  <p className="text-sm" style={{ color: '#888888' }}>{item.description}</p>
-                </div>
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                  >
+                    {item.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold" style={{ color: '#f5f5f5' }}>{item.title}</h3>
+                    <p className="text-sm truncate" style={{ color: '#888888' }}>{item.description}</p>
+                  </div>
+                  <ChevronDown 
+                    className="w-5 h-5 flex-shrink-0 transition-transform duration-200"
+                    style={{ 
+                      color: '#888888',
+                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}
+                  />
+                </button>
+                
+                {isExpanded && (
+                  <div className="p-4" style={{ backgroundColor: '#252525', borderTop: '1px solid #2a2a2a' }}>
+                    {/* SMTP Fields with Copy Buttons */}
+                    {item.smtpFields && (
+                      <div className="space-y-4 mb-4">
+                        <div>
+                          <h4 className="text-sm font-medium mb-2" style={{ color: '#f5f5f5' }}>Incoming Mail (IMAP)</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Host: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.host}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.incoming.host, 'imap-host')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'imap-host' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Port: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.port}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.incoming.port, 'imap-port')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'imap-port' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Security: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.security}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.incoming.security, 'imap-security')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'imap-security' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-sm font-medium mb-2" style={{ color: '#f5f5f5' }}>Outgoing Mail (SMTP)</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Host: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.host}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.host, 'smtp-host')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'smtp-host' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Port: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.port}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.port, 'smtp-port')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'smtp-port' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
+                              <span className="text-sm" style={{ color: '#888888' }}>Security: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.security}</span></span>
+                              <button 
+                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.security, 'smtp-security')}
+                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
+                                title="Copy"
+                              >
+                                {copiedField === 'smtp-security' ? (
+                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                ) : (
+                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Regular content */}
+                    <div className="text-sm" style={{ color: '#888888', lineHeight: '1.6' }}>
+                      {item.content.map((line, idx) => (
+                        <div key={idx}>{line}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="p-4" style={{ backgroundColor: '#252525' }}>
-                <div className="text-sm whitespace-pre-wrap" style={{ color: '#888888', lineHeight: '1.6' }}>
-                  {item.content.map((line, idx) => (
-                    <div key={idx}>{line}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
