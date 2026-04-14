@@ -3,9 +3,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* MSC-Projectz Vader Protocol Theme - Dark by Default */
+/* =====================================================
+   MSC-Projectz Vader Protocol Theme
+   Force dark mode by default - no light theme
+   ===================================================== */
+
 :root {
-  /* Force dark theme values - These are the actual colors */
+  color-scheme: dark;
+  
+  /* Core colors */
   --background: #121212;
   --foreground: #f5f5f5;
   --card: #1c1c1c;
@@ -25,12 +31,16 @@
   --border: #2a2a2a;
   --input: #1c1c1c;
   --ring: #4ADE80;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
   --chart-1: #4ADE80;
   --chart-2: #38bdf8;
   --chart-3: #818cf8;
   --chart-4: #facc15;
   --chart-5: #fb923c;
-  --radius: 0.5rem;
+  
+  /* Sidebar */
   --sidebar: #1a1a1a;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #4ADE80;
@@ -39,20 +49,13 @@
   --sidebar-accent-foreground: #f5f5f5;
   --sidebar-border: #2a2a2a;
   --sidebar-ring: #4ADE80;
-  
-  /* Custom MSC tokens */
-  --surface: #1a1a1a;
-  --surface-elevated: #252525;
-  --studio-green: #4ADE80;
-  --alert-red: #EF4444;
 }
 
-/* Tailwind CSS v4 Theme Configuration */
+/* Tailwind v4 Theme - Direct hex values */
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --font-sans: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
   
-  /* Direct color definitions for Tailwind v4 */
   --color-background: #121212;
   --color-foreground: #f5f5f5;
   --color-card: #1c1c1c;
@@ -72,19 +75,7 @@
   --color-border: #2a2a2a;
   --color-input: #1c1c1c;
   --color-ring: #4ADE80;
-  --color-chart-1: #4ADE80;
-  --color-chart-2: #38bdf8;
-  --color-chart-3: #818cf8;
-  --color-chart-4: #facc15;
-  --color-chart-5: #fb923c;
   
-  /* Radius */
-  --radius-sm: calc(0.5rem - 4px);
-  --radius-md: calc(0.5rem - 2px);
-  --radius-lg: 0.5rem;
-  --radius-xl: calc(0.5rem + 4px);
-  
-  /* Sidebar colors */
   --color-sidebar: #1a1a1a;
   --color-sidebar-foreground: #f5f5f5;
   --color-sidebar-primary: #4ADE80;
@@ -94,30 +85,29 @@
   --color-sidebar-border: #2a2a2a;
   --color-sidebar-ring: #4ADE80;
   
-  /* Custom colors */
-  --color-surface: #1a1a1a;
-  --color-surface-elevated: #252525;
-  --color-studio-green: #4ADE80;
-  --color-alert-red: #EF4444;
+  --radius-sm: calc(0.5rem - 4px);
+  --radius-md: calc(0.5rem - 2px);
+  --radius-lg: 0.5rem;
+  --radius-xl: calc(0.5rem + 4px);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  
+  html,
+  body {
+    background-color: #121212 !important;
+    color: #f5f5f5 !important;
   }
   
   html {
-    background-color: #121212;
     color-scheme: dark;
-  }
-  
-  body {
-    background-color: #121212;
-    color: #f5f5f5;
   }
 }
 
-/* Custom scrollbar for dark theme */
+/* Force dark scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -136,24 +126,30 @@
   background: #3a3a3a;
 }
 
-/* Force dark theme on all form elements */
-input, textarea, select {
+/* Force dark form elements */
+input,
+textarea,
+select {
   background-color: #1c1c1c !important;
   color: #f5f5f5 !important;
   border-color: #2a2a2a !important;
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #888888 !important;
 }
 
-/* Button overrides for proper dark theme */
-button {
-  color: inherit;
+/* Force dialog/popover dark backgrounds */
+[role="dialog"],
+[data-radix-popper-content-wrapper] > div,
+[data-radix-dialog-content] {
+  background-color: #1c1c1c !important;
+  color: #f5f5f5 !important;
+  border-color: #2a2a2a !important;
 }
 
-/* Card and dialog backgrounds */
-[role="dialog"],
-[data-radix-popper-content-wrapper] {
-  --tw-bg-opacity: 1;
+/* Dialog overlay */
+[data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.8) !important;
 }

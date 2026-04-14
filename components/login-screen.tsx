@@ -55,6 +55,8 @@ export function LoginScreen() {
               width={96} 
               height={96}
               className="object-contain"
+              loading="eager"
+              priority
             />
           </div>
           <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#4ADE80' }}>
