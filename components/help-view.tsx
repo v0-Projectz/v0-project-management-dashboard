@@ -450,9 +450,11 @@ export function HelpView() {
                 </div>
               </div>
               <div className="p-4" style={{ backgroundColor: '#252525' }}>
-                <pre className="text-sm whitespace-pre-wrap font-mono" style={{ color: '#888888' }}>
-                  {item.content.join('\n')}
-                </pre>
+                <div className="text-sm whitespace-pre-wrap" style={{ color: '#888888', lineHeight: '1.6' }}>
+                  {item.content.map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </div>
               </div>
             </div>
           ))}

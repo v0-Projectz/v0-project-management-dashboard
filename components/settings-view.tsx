@@ -15,17 +15,20 @@ import {
   AlertCircle,
   Upload,
   Send,
-  Shield
+  Shield,
+  Users
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { UserManagementModal } from './user-management-modal'
 import { useAppStore } from '@/lib/store'
 
 export function SettingsView() {
   const { appSettings, updateAppSettings, changeMasterPassword, user, updateUser } = useAppStore()
+  const [userManagementOpen, setUserManagementOpen] = useState(false)
   
   const [username, setUsername] = useState(user?.username || '')
   const [email, setEmail] = useState(user?.email || appSettings.email)
@@ -326,6 +329,31 @@ export function SettingsView() {
         </div>
       </div>
 
+      {/* User Management Section */}
+      <div 
+        className="rounded-xl p-6"
+        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+      >
+        <div className="mb-6">
+          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
+            <Users className="w-5 h-5" style={{ color: '#4ADE80' }} />
+            User Management
+          </h2>
+          <p className="text-sm mt-1" style={{ color: '#888888' }}>
+            Manage user accounts and permissions
+          </p>
+        </div>
+        
+        <Button 
+          onClick={() => setUserManagementOpen(true)}
+          className="flex items-center gap-2"
+          style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+        >
+          <Users className="w-4 h-4" />
+          Manage Users
+        </Button>
+      </div>
+
       {/* App Preferences */}
       <div 
         className="rounded-xl p-6"
@@ -581,6 +609,11 @@ export function SettingsView() {
           </Button>
         </div>
       </div>
+
+      <UserManagementModal 
+        isOpen={userManagementOpen} 
+        onClose={() => setUserManagementOpen(false)} 
+      />
     </div>
   )
 }

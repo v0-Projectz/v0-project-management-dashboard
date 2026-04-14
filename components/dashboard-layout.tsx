@@ -65,18 +65,18 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         >
           <div className="flex items-center gap-4">
             {/* MSC Icon and User Info */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full overflow-hidden" style={{ backgroundColor: surfaceColor, border: `1px solid ${borderColor}` }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0" style={{ backgroundColor: surfaceColor, border: `1px solid ${borderColor}` }}>
                 <Image 
                   src="/msc-icon.png" 
                   alt="MSC" 
-                  width={32} 
-                  height={32}
+                  width={28} 
+                  height={28}
                   className="object-contain"
                 />
               </div>
               {user && (
-                <span className="text-sm font-medium" style={{ color: textColor }}>
+                <span className="text-sm font-semibold leading-none" style={{ color: textColor }}>
                   {user.username}
                 </span>
               )}

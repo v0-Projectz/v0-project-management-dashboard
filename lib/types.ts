@@ -49,6 +49,12 @@ export interface User {
   username: string
   email: string
   avatar?: string
+  role?: 'admin' | 'user'
+}
+
+export interface RegisteredUser extends User {
+  id: string
+  createdAt: Date
 }
 
 export interface SpacemailSMTP {

@@ -2,12 +2,13 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Project, Task, Credential, EmailSettings, ViewType, AppSettings, User, AuthView, ProjectViewMode } from './types'
+import { RegisteredUser } from './types'
 
 interface AppState {
   isAuthenticated: boolean
   masterPassword: string | null
   user: User | null
+  users: RegisteredUser[]
   projects: Project[]
   selectedProjectId: string | null
   currentView: ViewType
@@ -24,6 +25,9 @@ interface AppState {
   
   // User actions
   updateUser: (updates: Partial<User>) => void
+  inviteUser: (username: string, email: string, tempPassword: string) => void
+  deleteUser: (userId: string) => boolean
+  getUsers: () => RegisteredUser[]
   
   // Navigation
   setCurrentView: (view: ViewType) => void
@@ -78,6 +82,7 @@ export const useAppStore = create<AppState>()(
       isAuthenticated: false,
       masterPassword: null,
       user: null,
+      users: [],
       projects: [],
       selectedProjectId: null,
       currentView: 'dashboard',
@@ -102,7 +107,7 @@ export const useAppStore = create<AppState>()(
           set({ 
             isAuthenticated: true, 
             masterPassword: password,
-            user: user || { username, email: '' }
+            user: user || { username, email: '', role: 'admin' }
           })
           return true
         }
@@ -113,7 +118,7 @@ export const useAppStore = create<AppState>()(
         set({ 
           isAuthenticated: true, 
           masterPassword: password,
-          user: { username, email },
+          user: { username, email, role: 'admin' },
           authView: 'login'
         })
         return true
@@ -128,6 +133,32 @@ export const useAppStore = create<AppState>()(
           user: state.user ? { ...state.user, ...updates } : null,
         }))
       },
+      
+      inviteUser: (username, email, tempPassword) => {
+        const newUser: RegisteredUser = {
+          id: generateId(),
+          username,
+          email,
+          role: 'user',
+          createdAt: new Date(),
+        }
+        set((state) => ({
+          users: [...state.users, newUser],
+        }))
+      },
+      
+      deleteUser: (userId) => {
+        const { users, user } = get()
+        if (user && users.some(u => u.id === userId)) {
+          set((state) => ({
+            users: state.users.filter(u => u.id !== userId),
+          }))
+          return true
+        }
+        return false
+      },
+      
+      getUsers: () => get().users,
       
       setCurrentView: (view) => set({ currentView: view }),
       
