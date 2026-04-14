@@ -134,23 +134,20 @@ export function SettingsView() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold" style={{ color: '#f5f5f5' }}>Settings</h1>
-        <p className="text-sm mt-1" style={{ color: '#888888' }}>
+        <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
+        <p className="text-sm mt-1 text-muted-foreground">
           Manage your account, preferences, and Spacemail SMTP configuration
         </p>
       </div>
 
       {/* Profile Section */}
-      <div 
-        className="rounded-xl p-6"
-        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-      >
+      <div className="rounded-xl p-6 bg-card border border-border">
         <div className="mb-6">
-          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-            <User className="w-5 h-5" style={{ color: '#4ADE80' }} />
+          <h2 className="text-lg font-medium flex items-center gap-2 text-foreground">
+            <User className="w-5 h-5 text-primary" />
             Profile
           </h2>
-          <p className="text-sm mt-1" style={{ color: '#888888' }}>
+          <p className="text-sm mt-1 text-muted-foreground">
             Manage your profile information and avatar
           </p>
         </div>
@@ -159,10 +156,7 @@ export function SettingsView() {
           {/* Avatar Upload */}
           <div className="flex items-start gap-6">
             <div className="flex flex-col items-center gap-3">
-              <div 
-                className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
-                style={{ backgroundColor: '#252525', border: '2px solid #2a2a2a' }}
-              >
+              <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-secondary border-2 border-border">
                 {avatar ? (
                   <Image 
                     src={avatar} 
@@ -172,7 +166,7 @@ export function SettingsView() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-12 h-12" style={{ color: '#888888' }} />
+                  <User className="w-12 h-12 text-muted-foreground" />
                 )}
               </div>
               <input
@@ -187,11 +181,6 @@ export function SettingsView() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 className="gap-2"
-                style={{ 
-                  backgroundColor: '#252525', 
-                  borderColor: '#2a2a2a', 
-                  color: '#f5f5f5' 
-                }}
               >
                 <Upload className="w-4 h-4" />
                 Choose File
@@ -201,7 +190,7 @@ export function SettingsView() {
             <div className="flex-1 space-y-4">
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
+                <Label htmlFor="username" className="text-sm flex items-center gap-2 text-muted-foreground">
                   <User className="w-4 h-4" />
                   Username
                 </Label>
@@ -211,13 +200,13 @@ export function SettingsView() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Your username"
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-input border-border text-foreground"
                 />
               </div>
               
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
+                <Label htmlFor="email" className="text-sm flex items-center gap-2 text-muted-foreground">
                   <Mail className="w-4 h-4" />
                   Email Address
                 </Label>
@@ -227,22 +216,22 @@ export function SettingsView() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-input border-border text-foreground"
                 />
               </div>
             </div>
           </div>
 
           {/* Change Password */}
-          <div className="pt-4" style={{ borderTop: '1px solid #2a2a2a' }}>
+          <div className="pt-4 border-t border-border">
             <div className="flex items-center gap-2 mb-4">
-              <Lock className="w-4 h-4" style={{ color: '#888888' }} />
-              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Change Master Password</span>
+              <Lock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Change Master Password</span>
             </div>
             
             <div className="space-y-4 max-w-md">
               <div className="space-y-2">
-                <Label htmlFor="current-password" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="current-password" className="text-xs text-muted-foreground">
                   Current Password
                 </Label>
                 <div className="relative">
@@ -251,14 +240,12 @@ export function SettingsView() {
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="pr-10"
-                    style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                    className="pr-10 bg-input border-border text-foreground"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: '#888888' }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors text-muted-foreground hover:text-foreground"
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -266,7 +253,7 @@ export function SettingsView() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="new-password" className="text-xs text-muted-foreground">
                   New Password
                 </Label>
                 <div className="relative">
@@ -275,14 +262,12 @@ export function SettingsView() {
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="pr-10"
-                    style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                    className="pr-10 bg-input border-border text-foreground"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: '#888888' }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors text-muted-foreground hover:text-foreground"
                   >
                     {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -290,7 +275,7 @@ export function SettingsView() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">
                   Confirm New Password
                 </Label>
                 <Input
@@ -298,7 +283,7 @@ export function SettingsView() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-input border-border text-foreground"
                 />
               </div>
 
@@ -319,8 +304,7 @@ export function SettingsView() {
               <Button 
                 onClick={handleChangePassword}
                 disabled={!currentPassword || !newPassword || !confirmPassword}
-                className="mt-2"
-                style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                className="mt-2 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Update Password
               </Button>
@@ -331,27 +315,23 @@ export function SettingsView() {
 
       {/* User Management Section - Admin Only */}
       {user?.role === 'admin' && (
-        <div 
-          className="rounded-xl p-6"
-          style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-        >
+        <div className="rounded-xl p-6 bg-card border border-border">
           <div className="mb-6">
-            <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-              <Users className="w-5 h-5" style={{ color: '#4ADE80' }} />
+            <h2 className="text-lg font-medium flex items-center gap-2 text-foreground">
+              <Users className="w-5 h-5 text-primary" />
               User Management
-              <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#4ADE80', color: '#121212' }}>
+              <span className="text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">
                 Admin
               </span>
             </h2>
-            <p className="text-sm mt-1" style={{ color: '#888888' }}>
+            <p className="text-sm mt-1 text-muted-foreground">
               Manage user accounts and permissions
             </p>
           </div>
           
           <Button 
             onClick={() => setUserManagementOpen(true)}
-            className="flex items-center gap-2"
-            style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+            className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Users className="w-4 h-4" />
             Manage Users
@@ -360,39 +340,30 @@ export function SettingsView() {
       )}
 
       {/* App Preferences */}
-      <div 
-        className="rounded-xl p-6"
-        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-      >
+      <div className="rounded-xl p-6 bg-card border border-border">
         <div className="mb-6">
-          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-            <Monitor className="w-5 h-5" style={{ color: '#4ADE80' }} />
+          <h2 className="text-lg font-medium flex items-center gap-2 text-foreground">
+            <Monitor className="w-5 h-5 text-primary" />
             App Preferences
           </h2>
-          <p className="text-sm mt-1" style={{ color: '#888888' }}>
+          <p className="text-sm mt-1 text-muted-foreground">
             Configure application behavior and display settings
           </p>
         </div>
         
-        <div 
-          className="p-4 rounded-lg"
-          style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-        >
+        <div className="p-4 rounded-lg bg-secondary border border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div 
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: '#1c1c1c' }}
-              >
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-card">
                 {pathFormat === 'windows' ? (
-                  <Monitor className="w-5 h-5" style={{ color: '#888888' }} />
+                  <Monitor className="w-5 h-5 text-muted-foreground" />
                 ) : (
-                  <Apple className="w-5 h-5" style={{ color: '#888888' }} />
+                  <Apple className="w-5 h-5 text-muted-foreground" />
                 )}
               </div>
               <div>
-                <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Local Path Format</p>
-                <p className="text-xs" style={{ color: '#888888' }}>
+                <p className="text-sm font-medium text-foreground">Local Path Format</p>
+                <p className="text-xs text-muted-foreground">
                   {pathFormat === 'windows' 
                     ? 'Windows style: C:\\Projects\\my-project' 
                     : 'Mac style: /Users/name/Projects/my-project'}
@@ -400,42 +371,39 @@ export function SettingsView() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs" style={{ color: '#888888' }}>Windows</span>
+              <span className="text-xs text-muted-foreground">Windows</span>
               <Switch
                 checked={pathFormat === 'mac'}
                 onCheckedChange={(checked) => setPathFormat(checked ? 'mac' : 'windows')}
               />
-              <span className="text-xs" style={{ color: '#4ADE80' }}>Mac</span>
+              <span className="text-xs text-primary">Mac</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Spacemail SMTP Configuration */}
-      <div 
-        className="rounded-xl p-6"
-        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-      >
+      <div className="rounded-xl p-6 bg-card border border-border">
         <div className="mb-6">
-          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-            <Server className="w-5 h-5" style={{ color: '#4ADE80' }} />
+          <h2 className="text-lg font-medium flex items-center gap-2 text-foreground">
+            <Server className="w-5 h-5 text-primary" />
             Spacemail SMTP Configuration
           </h2>
-          <p className="text-sm mt-1" style={{ color: '#888888' }}>
+          <p className="text-sm mt-1 text-muted-foreground">
             Configure Spacemail settings for email notifications and password recovery
           </p>
         </div>
         
         <div className="space-y-6">
           {/* Incoming Mail (IMAP) */}
-          <div className="p-4 rounded-lg" style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}>
+          <div className="p-4 rounded-lg bg-secondary border border-border">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-4 h-4" style={{ color: '#4ADE80' }} />
-              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Incoming Mail (IMAP)</span>
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Incoming Mail (IMAP)</span>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="imap-host" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="imap-host" className="text-xs text-muted-foreground">
                   Host
                 </Label>
                 <Input
@@ -443,11 +411,11 @@ export function SettingsView() {
                   value={smtpIncomingHost}
                   onChange={(e) => setSmtpIncomingHost(e.target.value)}
                   placeholder="mail.spacemail.com"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-card border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="imap-port" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="imap-port" className="text-xs text-muted-foreground">
                   Port
                 </Label>
                 <Input
@@ -455,22 +423,22 @@ export function SettingsView() {
                   value={smtpIncomingPort}
                   onChange={(e) => setSmtpIncomingPort(e.target.value)}
                   placeholder="993"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-card border-border text-foreground"
                 />
               </div>
             </div>
-            <p className="text-xs mt-2" style={{ color: '#666666' }}>SSL/TLS Enabled</p>
+            <p className="text-xs mt-2 text-muted-foreground">SSL/TLS Enabled</p>
           </div>
 
           {/* Outgoing Mail (SMTP) */}
-          <div className="p-4 rounded-lg" style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}>
+          <div className="p-4 rounded-lg bg-secondary border border-border">
             <div className="flex items-center gap-2 mb-4">
-              <Send className="w-4 h-4" style={{ color: '#4ADE80' }} />
-              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Outgoing Mail (SMTP)</span>
+              <Send className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Outgoing Mail (SMTP)</span>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="smtp-host" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="smtp-host" className="text-xs text-muted-foreground">
                   Host
                 </Label>
                 <Input
@@ -478,11 +446,11 @@ export function SettingsView() {
                   value={smtpOutgoingHost}
                   onChange={(e) => setSmtpOutgoingHost(e.target.value)}
                   placeholder="mail.spacemail.com"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-card border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="smtp-port" className="text-xs" style={{ color: '#888888' }}>
+                <Label htmlFor="smtp-port" className="text-xs text-muted-foreground">
                   Port
                 </Label>
                 <Input
@@ -490,29 +458,29 @@ export function SettingsView() {
                   value={smtpOutgoingPort}
                   onChange={(e) => setSmtpOutgoingPort(e.target.value)}
                   placeholder="465"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-card border-border text-foreground"
                 />
               </div>
             </div>
-            <p className="text-xs mt-2" style={{ color: '#666666' }}>SSL/TLS Enabled</p>
+            <p className="text-xs mt-2 text-muted-foreground">SSL/TLS Enabled</p>
           </div>
 
           {/* Credentials */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="smtp-username" className="text-xs" style={{ color: '#888888' }}>
+              <Label htmlFor="smtp-username" className="text-xs text-muted-foreground">
                 Username
               </Label>
               <Input
                 id="smtp-username"
                 value={smtpUsername}
                 onChange={(e) => setSmtpUsername(e.target.value)}
-                placeholder="your@spacemail.com"
-                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                placeholder="you@spacemail.com"
+                className="bg-input border-border text-foreground"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="smtp-password" className="text-xs" style={{ color: '#888888' }}>
+              <Label htmlFor="smtp-password" className="text-xs text-muted-foreground">
                 Password
               </Label>
               <div className="relative">
@@ -521,15 +489,13 @@ export function SettingsView() {
                   type={showSmtpPassword ? 'text' : 'password'}
                   value={smtpPassword}
                   onChange={(e) => setSmtpPassword(e.target.value)}
-                  placeholder="Your password"
-                  className="pr-10"
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  placeholder="Your Spacemail password"
+                  className="pr-10 bg-input border-border text-foreground"
                 />
                 <button
                   type="button"
                   onClick={() => setShowSmtpPassword(!showSmtpPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: '#888888' }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors text-muted-foreground hover:text-foreground"
                 >
                   {showSmtpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -538,13 +504,10 @@ export function SettingsView() {
           </div>
 
           {/* SSL Toggle */}
-          <div 
-            className="p-4 rounded-lg flex items-center justify-between"
-            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-          >
+          <div className="flex items-center justify-between p-4 rounded-lg bg-secondary border border-border">
             <div>
-              <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>SSL/TLS Encryption</p>
-              <p className="text-xs" style={{ color: '#888888' }}>Enable secure connection</p>
+              <p className="text-sm font-medium text-foreground">SSL/TLS Encryption</p>
+              <p className="text-xs text-muted-foreground">Required for secure email transmission</p>
             </div>
             <Switch
               checked={smtpSsl}
@@ -552,32 +515,17 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Test Email Button */}
+          {/* Test Email */}
           <div className="flex items-center gap-4">
             <Button
+              variant="outline"
               onClick={handleSendTestEmail}
               disabled={testEmailSending}
-              variant="outline"
               className="gap-2"
-              style={{ 
-                backgroundColor: '#252525', 
-                borderColor: '#4ADE80', 
-                color: '#4ADE80' 
-              }}
             >
-              {testEmailSending ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-[#4ADE80]/30 border-t-[#4ADE80] rounded-full animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Send Test Email
-                </>
-              )}
+              <Send className="w-4 h-4" />
+              {testEmailSending ? 'Sending...' : 'Send Test Email'}
             </Button>
-            
             {testEmailMessage && (
               <div 
                 className="flex items-center gap-2 text-sm"
@@ -596,25 +544,24 @@ export function SettingsView() {
       </div>
 
       {/* Save Button */}
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between pt-4 border-t border-border">
         {saveMessage && (
-          <div className="flex items-center gap-2 text-sm" style={{ color: '#4ADE80' }}>
+          <div className="flex items-center gap-2 text-sm text-primary">
             <CheckCircle className="w-4 h-4" />
             {saveMessage}
           </div>
         )}
-        <div className="ml-auto">
-          <Button 
-            onClick={handleSaveSettings} 
-            className="gap-2"
-            style={{ backgroundColor: '#4ADE80', color: '#121212' }}
-          >
-            <Save className="w-4 h-4" />
-            Save Settings
-          </Button>
-        </div>
+        <div className="flex-1" />
+        <Button 
+          onClick={handleSaveSettings} 
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          <Save className="w-4 h-4" />
+          Save Settings
+        </Button>
       </div>
 
+      {/* User Management Modal */}
       <UserManagementModal 
         isOpen={userManagementOpen} 
         onClose={() => setUserManagementOpen(false)} 

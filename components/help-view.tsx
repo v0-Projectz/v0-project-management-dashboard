@@ -352,15 +352,12 @@ export function HelpView() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div 
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-          >
-            <BookOpen className="w-5 h-5" style={{ color: '#4ADE80' }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/20">
+            <BookOpen className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold" style={{ color: '#f5f5f5' }}>Help & Documentation</h1>
-            <p className="text-sm" style={{ color: '#888888' }}>
+            <h1 className="text-2xl font-semibold text-foreground">Help & Documentation</h1>
+            <p className="text-sm text-muted-foreground">
               Developer FAQ and workflow guides for MSC-Projectz
             </p>
           </div>
@@ -369,32 +366,24 @@ export function HelpView() {
 
       {/* Search */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#888888' }} />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search documentation..."
-          className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2"
-          style={{ 
-            backgroundColor: '#1c1c1c', 
-            border: '1px solid #2a2a2a',
-            color: '#f5f5f5'
-          }}
+          className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-card border border-border text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Tabs */}
       <div className="mb-6">
-        <div 
-          className="inline-flex rounded-lg p-1"
-          style={{ backgroundColor: '#1c1c1c' }}
-        >
+        <div className="inline-flex rounded-lg p-1 bg-card border border-border">
           <button
             onClick={() => setActiveTab('instructionz')}
             className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
             style={{ 
               backgroundColor: activeTab === 'instructionz' ? '#4ADE80' : 'transparent',
-              color: activeTab === 'instructionz' ? '#121212' : '#888888'
+              color: activeTab === 'instructionz' ? '#121212' : undefined
             }}
           >
             <Shield className="w-4 h-4" />
@@ -402,22 +391,14 @@ export function HelpView() {
           </button>
           <button
             onClick={() => setActiveTab('faq')}
-            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{ 
-              backgroundColor: activeTab === 'faq' ? '#2a2a2a' : 'transparent',
-              color: activeTab === 'faq' ? '#f5f5f5' : '#888888'
-            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'faq' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <Code className="w-4 h-4" />
             Developer FAQ
           </button>
           <button
             onClick={() => setActiveTab('guides')}
-            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{ 
-              backgroundColor: activeTab === 'guides' ? '#2a2a2a' : 'transparent',
-              color: activeTab === 'guides' ? '#f5f5f5' : '#888888'
-            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'guides' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <Workflow className="w-4 h-4" />
             Workflow Guides
@@ -434,8 +415,8 @@ export function HelpView() {
               onClick={() => setActiveCategory(cat.id)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               style={{ 
-                backgroundColor: activeCategory === cat.id ? '#4ADE80' : '#2a2a2a',
-                color: activeCategory === cat.id ? '#121212' : '#888888'
+                backgroundColor: activeCategory === cat.id ? '#4ADE80' : undefined,
+                color: activeCategory === cat.id ? '#121212' : undefined
               }}
             >
               {cat.label}
@@ -447,11 +428,8 @@ export function HelpView() {
       {/* Instructionz Tab */}
       {activeTab === 'instructionz' && (
         <div className="space-y-4">
-          <div 
-            className="p-4 rounded-xl"
-            style={{ backgroundColor: 'rgba(74, 222, 128, 0.1)', border: '1px solid rgba(74, 222, 128, 0.3)' }}
-          >
-            <p className="text-sm" style={{ color: '#4ADE80' }}>
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
+            <p className="text-sm text-primary">
               Essential documentation for Master Password Recovery, SMTP Setup, and Adding New Users.
             </p>
           </div>
@@ -461,172 +439,122 @@ export function HelpView() {
             return (
               <div 
                 key={item.id}
-                className="rounded-xl overflow-hidden transition-all"
+                className="rounded-xl overflow-hidden transition-all bg-card border"
                 style={{ 
-                  backgroundColor: '#1c1c1c', 
-                  border: isExpanded ? '1px solid #4ADE80' : '1px solid #2a2a2a',
+                  borderColor: isExpanded ? '#4ADE80' : undefined,
                   boxShadow: isExpanded ? '0 0 12px rgba(74, 222, 128, 0.15)' : 'none'
                 }}
               >
                 <button 
                   onClick={() => toggleSection(item.id)}
-                  className="flex items-center gap-3 p-4 w-full text-left hover:bg-[#252525] transition-colors"
+                  className="flex items-center gap-3 p-4 w-full text-left hover:bg-secondary/50 transition-colors"
                 >
-                  <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
-                  >
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
                     {item.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold" style={{ color: '#f5f5f5' }}>{item.title}</h3>
-                    <p className="text-sm truncate" style={{ color: '#888888' }}>{item.description}</p>
+                    <h3 className="font-semibold text-foreground">{item.title}</h3>
+                    <p className="text-sm truncate text-muted-foreground">{item.description}</p>
                   </div>
                   <ChevronDown 
-                    className="w-5 h-5 flex-shrink-0 transition-transform duration-200"
-                    style={{ 
-                      color: '#888888',
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                    }}
+                    className="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-muted-foreground"
+                    style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                   />
                 </button>
                 
                 {isExpanded && (
-                  <div className="p-4" style={{ backgroundColor: '#252525', borderTop: '1px solid #2a2a2a' }}>
+                  <div className="p-4 bg-secondary/50 border-t border-border">
                     {/* SMTP Fields with Copy Buttons */}
                     {item.smtpFields && (
                       <div className="space-y-4 mb-4">
                         <div>
-                          <h4 className="text-sm font-medium mb-2" style={{ color: '#f5f5f5' }}>Incoming Mail (IMAP)</h4>
+                          <h4 className="text-sm font-medium mb-2 text-foreground">Incoming Mail (IMAP)</h4>
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Host: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.host}</span></span>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.incoming.host}</span></span>
                               <button 
                                 onClick={() => copyToClipboard(item.smtpFields!.incoming.host, 'imap-host')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
+                                className="p-1 rounded hover:bg-secondary transition-colors"
                               >
                                 {copiedField === 'imap-host' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                  <Check className="w-4 h-4 text-primary" />
                                 ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                  <Copy className="w-4 h-4 text-muted-foreground" />
                                 )}
                               </button>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Port: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.port}</span></span>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.incoming.port}</span></span>
                               <button 
                                 onClick={() => copyToClipboard(item.smtpFields!.incoming.port, 'imap-port')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
+                                className="p-1 rounded hover:bg-secondary transition-colors"
                               >
                                 {copiedField === 'imap-port' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                  <Check className="w-4 h-4 text-primary" />
                                 ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                  <Copy className="w-4 h-4 text-muted-foreground" />
                                 )}
                               </button>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Security: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.incoming.security}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.incoming.security, 'imap-security')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
-                              >
-                                {copiedField === 'imap-security' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                                ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
-                                )}
-                              </button>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.incoming.security}</span></span>
                             </div>
                           </div>
                         </div>
-                        
                         <div>
-                          <h4 className="text-sm font-medium mb-2" style={{ color: '#f5f5f5' }}>Outgoing Mail (SMTP)</h4>
+                          <h4 className="text-sm font-medium mb-2 text-foreground">Outgoing Mail (SMTP)</h4>
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Host: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.host}</span></span>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.outgoing.host}</span></span>
                               <button 
                                 onClick={() => copyToClipboard(item.smtpFields!.outgoing.host, 'smtp-host')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
+                                className="p-1 rounded hover:bg-secondary transition-colors"
                               >
                                 {copiedField === 'smtp-host' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                  <Check className="w-4 h-4 text-primary" />
                                 ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                  <Copy className="w-4 h-4 text-muted-foreground" />
                                 )}
                               </button>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Port: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.port}</span></span>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.outgoing.port}</span></span>
                               <button 
                                 onClick={() => copyToClipboard(item.smtpFields!.outgoing.port, 'smtp-port')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
+                                className="p-1 rounded hover:bg-secondary transition-colors"
                               >
                                 {copiedField === 'smtp-port' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                                  <Check className="w-4 h-4 text-primary" />
                                 ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
+                                  <Copy className="w-4 h-4 text-muted-foreground" />
                                 )}
                               </button>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1c1c1c' }}>
-                              <span className="text-sm" style={{ color: '#888888' }}>Security: <span style={{ color: '#f5f5f5' }}>{item.smtpFields.outgoing.security}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.security, 'smtp-security')}
-                                className="p-1.5 rounded hover:bg-[#2a2a2a] transition-colors"
-                                title="Copy"
-                              >
-                                {copiedField === 'smtp-security' ? (
-                                  <Check className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                                ) : (
-                                  <Copy className="w-4 h-4" style={{ color: '#888888' }} />
-                                )}
-                              </button>
+                            <div className="flex items-center justify-between p-2 rounded bg-card">
+                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.outgoing.security}</span></span>
                             </div>
                           </div>
                         </div>
                       </div>
                     )}
-                    
-                    {/* Admin Strategy Note Callout */}
+
+                    {/* Admin Note */}
                     {item.adminNote && (
-                      <div 
-                        className="p-4 rounded-lg mb-4"
-                        style={{ 
-                          backgroundColor: '#222222', 
-                          border: '1px solid #4ADE80',
-                          boxShadow: '0 0 8px rgba(74, 222, 128, 0.1)'
-                        }}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div 
-                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-                          >
-                            <Shield className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold mb-1" style={{ color: '#4ADE80' }}>
-                              {item.adminNote.title}
-                            </h4>
-                            <p className="text-sm leading-relaxed" style={{ color: '#f5f5f5' }}>
-                              {item.adminNote.content}
-                            </p>
-                          </div>
-                        </div>
+                      <div className="p-3 rounded-lg mb-4 bg-primary/10 border border-primary/30">
+                        <h4 className="text-sm font-medium mb-1 text-primary">{item.adminNote.title}</h4>
+                        <p className="text-xs text-foreground">{item.adminNote.content}</p>
                       </div>
                     )}
-                    
-                    {/* Regular content */}
-                    <div className="text-sm" style={{ color: '#888888', lineHeight: '1.6' }}>
-                      {item.content.map((line, idx) => (
-                        <div key={idx}>{line}</div>
+
+                    {/* Content */}
+                    <div className="space-y-1.5">
+                      {item.content.map((line, index) => (
+                        <p 
+                          key={index} 
+                          className={`text-sm ${line === '' ? 'h-2' : line.startsWith('Note:') || line.startsWith('Invite Code') ? 'text-primary' : 'text-muted-foreground'}`}
+                        >
+                          {line}
+                        </p>
                       ))}
                     </div>
                   </div>
@@ -639,35 +567,33 @@ export function HelpView() {
 
       {/* FAQ Tab */}
       {activeTab === 'faq' && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filteredFAQs.length === 0 ? (
             <div className="text-center py-12">
-              <HelpCircle className="w-12 h-12 mx-auto mb-3" style={{ color: '#888888' }} />
-              <p style={{ color: '#888888' }}>No matching questions found</p>
+              <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-foreground">No results found</p>
+              <p className="text-sm text-muted-foreground">Try a different search term or category</p>
             </div>
           ) : (
-            <Accordion type="single" collapsible className="space-y-2">
-              {filteredFAQs.map((item) => (
+            <Accordion type="single" collapsible className="space-y-3">
+              {filteredFAQs.map((faq) => (
                 <AccordionItem 
-                  key={item.id} 
-                  value={item.id}
-                  className="rounded-lg px-4"
-                  style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+                  key={faq.id} 
+                  value={faq.id}
+                  className="rounded-xl border border-border bg-card overflow-hidden"
                 >
-                  <AccordionTrigger className="hover:no-underline py-4">
-                    <div className="flex items-start gap-3 text-left">
-                      <span 
-                        className="flex-shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded"
-                        style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
-                      >
-                        {getCategoryIcon(item.category)}
-                        {item.category}
-                      </span>
-                      <span className="font-medium" style={{ color: '#f5f5f5' }}>{item.question}</span>
+                  <AccordionTrigger className="px-4 py-3 hover:bg-secondary/50 transition-colors [&[data-state=open]]:bg-secondary/50 text-foreground">
+                    <div className="flex items-center gap-3 text-left">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
+                        {getCategoryIcon(faq.category)}
+                      </div>
+                      <span className="font-medium text-sm">{faq.question}</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-4 pl-[88px]" style={{ color: '#888888' }}>
-                    {item.answer}
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="pl-11">
+                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               ))}
@@ -681,52 +607,38 @@ export function HelpView() {
         <div className="space-y-4">
           {filteredGuides.length === 0 ? (
             <div className="text-center py-12">
-              <Workflow className="w-12 h-12 mx-auto mb-3" style={{ color: '#888888' }} />
-              <p style={{ color: '#888888' }}>No matching guides found</p>
+              <Workflow className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-foreground">No guides found</p>
+              <p className="text-sm text-muted-foreground">Try a different search term or category</p>
             </div>
           ) : (
             filteredGuides.map((guide) => (
               <div 
                 key={guide.id}
-                className="rounded-xl p-5 transition-colors"
-                style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+                className="rounded-xl overflow-hidden bg-card border border-border"
               >
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span 
-                        className="flex items-center gap-1.5 text-xs px-2 py-1 rounded"
-                        style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
-                      >
-                        {getCategoryIcon(guide.category)}
-                        {guide.category}
-                      </span>
+                <div className="p-4 border-b border-border">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
+                      {getCategoryIcon(guide.category)}
                     </div>
-                    <h3 className="font-semibold text-lg" style={{ color: '#f5f5f5' }}>{guide.title}</h3>
-                    <p className="text-sm mt-1" style={{ color: '#888888' }}>{guide.description}</p>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{guide.title}</h3>
+                      <p className="text-sm text-muted-foreground">{guide.description}</p>
+                    </div>
                   </div>
                 </div>
-                
-                <div 
-                  className="rounded-lg p-4"
-                  style={{ backgroundColor: '#252525' }}
-                >
-                  <p 
-                    className="text-xs font-medium uppercase tracking-wider mb-3"
-                    style={{ color: '#888888' }}
-                  >
-                    Steps
-                  </p>
+                <div className="p-4 bg-secondary/30">
                   <ol className="space-y-2">
                     {guide.steps.map((step, index) => (
-                      <li key={index} className="flex items-start gap-3 text-sm">
-                        <span 
-                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium"
-                          style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
-                        >
+                      <li 
+                        key={index}
+                        className="flex items-start gap-3 text-sm"
+                      >
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium bg-primary text-primary-foreground">
                           {index + 1}
                         </span>
-                        <span style={{ color: '#888888' }}>{step}</span>
+                        <span className="text-muted-foreground pt-0.5">{step}</span>
                       </li>
                     ))}
                   </ol>
@@ -738,42 +650,36 @@ export function HelpView() {
       )}
 
       {/* Quick Links */}
-      <div 
-        className="mt-8 p-4 rounded-xl"
-        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-      >
-        <h3 className="text-sm font-medium mb-3" style={{ color: '#f5f5f5' }}>Quick Links</h3>
+      <div className="mt-8 rounded-xl p-4 bg-card border border-border">
+        <h3 className="font-semibold mb-4 text-foreground">Quick Links</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button 
             onClick={() => setCurrentView('dashboard')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
-            <Monitor className="w-4 h-4" />
-            Dashboard
+            <Monitor className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm">Dashboard</span>
           </button>
           <button 
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+            onClick={() => {}}
+            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
-            <Key className="w-4 h-4" />
-            Credentials
+            <Key className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm">Credentials</span>
           </button>
           <button 
             onClick={() => setCurrentView('settings')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
-            <Server className="w-4 h-4" />
-            SMTP Setup
+            <Mail className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm">SMTP Setup</span>
           </button>
           <button 
             onClick={() => setCurrentView('dashboard')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
-            <Globe className="w-4 h-4" />
-            Live Projects
+            <Globe className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm">Live Projects</span>
           </button>
         </div>
       </div>

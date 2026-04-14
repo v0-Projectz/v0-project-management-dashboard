@@ -39,19 +39,13 @@ export function TaskPulse({ project }: TaskPulseProps) {
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   return (
-    <div 
-      className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-    >
+    <div className="rounded-xl overflow-hidden bg-card border border-border">
       {/* Header */}
-      <div 
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderBottom: '1px solid #2a2a2a' }}
-      >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-3">
-          <h3 className="font-medium text-sm" style={{ color: '#f5f5f5' }}>Task Pulse</h3>
+          <h3 className="font-medium text-sm text-foreground">Task Pulse</h3>
           {totalCount > 0 && (
-            <span className="text-xs" style={{ color: '#888888' }}>
+            <span className="text-xs text-muted-foreground">
               {completedCount}/{totalCount}
             </span>
           )}
@@ -61,7 +55,6 @@ export function TaskPulse({ project }: TaskPulseProps) {
             variant="ghost"
             size="icon"
             className="h-7 w-7"
-            style={{ color: '#888888' }}
             onClick={() => setIsAdding(true)}
           >
             <Plus className="w-4 h-4" />
@@ -71,17 +64,11 @@ export function TaskPulse({ project }: TaskPulseProps) {
 
       {/* Progress Bar */}
       {totalCount > 0 && (
-        <div 
-          className="px-4 py-2"
-          style={{ borderBottom: '1px solid #2a2a2a', backgroundColor: '#1a1a1a' }}
-        >
-          <div 
-            className="h-1.5 rounded-full overflow-hidden"
-            style={{ backgroundColor: '#2a2a2a' }}
-          >
+        <div className="px-4 py-2 border-b border-border bg-secondary/50">
+          <div className="h-1.5 rounded-full overflow-hidden bg-secondary">
             <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${progress}%`, backgroundColor: '#4ADE80' }}
+              className="h-full rounded-full transition-all duration-300 bg-primary"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
@@ -91,12 +78,11 @@ export function TaskPulse({ project }: TaskPulseProps) {
       <div className="max-h-64 overflow-y-auto">
         {project.tasks.length === 0 && !isAdding ? (
           <div className="px-4 py-8 text-center">
-            <Circle className="w-8 h-8 mx-auto mb-2 opacity-50" style={{ color: '#888888' }} />
-            <p className="text-sm" style={{ color: '#888888' }}>No tasks yet</p>
+            <Circle className="w-8 h-8 mx-auto mb-2 opacity-50 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">No tasks yet</p>
             <button
               onClick={() => setIsAdding(true)}
-              className="text-xs mt-1"
-              style={{ color: '#4ADE80' }}
+              className="text-xs mt-1 text-primary"
             >
               Add your first task
             </button>
@@ -106,32 +92,29 @@ export function TaskPulse({ project }: TaskPulseProps) {
             {project.tasks.map((task) => (
               <li
                 key={task.id}
-                className="group flex items-center gap-3 px-4 py-2.5 transition-colors"
-                style={{ borderBottom: '1px solid #2a2a2a' }}
+                className="group flex items-center gap-3 px-4 py-2.5 transition-colors border-b border-border hover:bg-secondary/50"
               >
                 <button
                   onClick={() => toggleTask(project.id, task.id)}
                   className="flex-shrink-0"
                 >
                   {task.completed ? (
-                    <CheckCircle2 className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
                   ) : (
-                    <Circle className="w-4 h-4 transition-colors" style={{ color: '#888888' }} />
+                    <Circle className="w-4 h-4 transition-colors text-muted-foreground hover:text-primary" />
                   )}
                 </button>
                 <span
                   className={cn(
                     'flex-1 text-sm transition-colors',
-                    task.completed && 'line-through'
+                    task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
                   )}
-                  style={{ color: task.completed ? '#888888' : '#f5f5f5' }}
                 >
                   {task.title}
                 </span>
                 <button
                   onClick={() => deleteTask(project.id, task.id)}
-                  className="opacity-0 group-hover:opacity-100 p-1 transition-all"
-                  style={{ color: '#888888' }}
+                  className="opacity-0 group-hover:opacity-100 p-1 transition-all text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -142,24 +125,19 @@ export function TaskPulse({ project }: TaskPulseProps) {
 
         {/* Add Task Input */}
         {isAdding && (
-          <div 
-            className="flex items-center gap-2 px-4 py-2"
-            style={{ borderTop: '1px solid #2a2a2a' }}
-          >
+          <div className="flex items-center gap-2 px-4 py-2 border-t border-border">
             <Input
               placeholder="Add a task..."
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="h-8 text-sm"
-              style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+              className="h-8 text-sm bg-input border-border text-foreground"
               autoFocus
             />
             <Button 
               size="sm" 
-              className="h-8" 
+              className="h-8 bg-primary text-primary-foreground hover:bg-primary/90" 
               onClick={handleAddTask}
-              style={{ backgroundColor: '#4ADE80', color: '#121212' }}
             >
               Add
             </Button>
@@ -167,7 +145,6 @@ export function TaskPulse({ project }: TaskPulseProps) {
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              style={{ color: '#888888' }}
               onClick={() => {
                 setIsAdding(false)
                 setNewTaskTitle('')

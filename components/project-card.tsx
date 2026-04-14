@@ -199,15 +199,14 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, 
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-48"
-              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
+              className="w-48 bg-popover border-border"
             >
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation()
                   onEdit()
                 }}
-                style={{ color: textColor }}
+                className="cursor-pointer"
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Edit Project
@@ -217,18 +216,18 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, 
                   e.stopPropagation()
                   onOpenVault()
                 }}
-                style={{ color: textColor }}
+                className="cursor-pointer"
               >
                 <Key className="w-4 h-4 mr-2" />
                 Open Vault
               </DropdownMenuItem>
-              <DropdownMenuSeparator style={{ backgroundColor: borderColor }} />
+              <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation()
                   handleOpenInCursor()
                 }}
-                style={{ color: textColor }}
+                className="cursor-pointer"
               >
                 <MonitorPlay className="w-4 h-4 mr-2" />
                 Open in Cursor
@@ -238,7 +237,7 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, 
                   e.stopPropagation()
                   handleOpenInExplorer()
                 }}
-                style={{ color: textColor }}
+                className="cursor-pointer"
               >
                 <FolderOpen className="w-4 h-4 mr-2" />
                 Copy Path
@@ -249,19 +248,20 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, 
                     e.stopPropagation()
                     handleOpenLiveUrl()
                   }}
-                  style={{ color: textColor }}
+                  className="cursor-pointer"
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Open Live URL
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator style={{ backgroundColor: borderColor }} />
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
                   onDelete()
                 }}
-                style={{ color: '#EF4444' }}
+                variant="destructive"
+                className="cursor-pointer"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Project

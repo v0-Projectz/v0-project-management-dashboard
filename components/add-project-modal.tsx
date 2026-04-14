@@ -139,36 +139,25 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 backdrop-blur-sm" 
-        style={{ backgroundColor: 'rgba(18, 18, 18, 0.8)' }}
+        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
         onClick={handleClose} 
       />
       
       {/* Modal */}
-      <div 
-        className="relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
-        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
-      >
+      <div className="relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
         {/* Header */}
-        <div 
-          className="flex items-center justify-between px-6 py-4"
-          style={{ borderBottom: '1px solid #2a2a2a' }}
-        >
-          <h2 className="text-lg font-semibold" style={{ color: '#f5f5f5' }}>New Project</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">New Project</h2>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-md transition-colors"
-            style={{ color: '#888888' }}
+            className="p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Step Indicators */}
-        <div 
-          className="flex items-center justify-between px-6 py-4"
-          style={{ borderBottom: '1px solid #2a2a2a' }}
-        >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           {steps.map((step, index) => {
             const Icon = step.icon
             const isActive = step.id === currentStep
@@ -178,11 +167,12 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
               <div key={step.id} className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                    style={{ 
-                      backgroundColor: isActive ? '#4ADE80' : isCompleted ? 'rgba(74, 222, 128, 0.2)' : '#2a2a2a',
-                      color: isActive ? '#121212' : isCompleted ? '#4ADE80' : '#888888'
-                    }}
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                      isActive ? "bg-primary text-primary-foreground" : 
+                      isCompleted ? "bg-primary/20 text-primary" : 
+                      "bg-secondary text-muted-foreground"
+                    )}
                   >
                     {isCompleted ? (
                       <Check className="w-4 h-4" />
@@ -191,16 +181,20 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     )}
                   </div>
                   <span
-                    className="text-xs font-medium hidden sm:block"
-                    style={{ color: isActive ? '#f5f5f5' : '#888888' }}
+                    className={cn(
+                      "text-xs font-medium hidden sm:block",
+                      isActive ? "text-foreground" : "text-muted-foreground"
+                    )}
                   >
                     {step.label}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className="w-8 h-px mx-2"
-                    style={{ backgroundColor: isCompleted ? '#4ADE80' : '#2a2a2a' }}
+                    className={cn(
+                      "w-8 h-px mx-2",
+                      isCompleted ? "bg-primary" : "bg-border"
+                    )}
                   />
                 )}
               </div>
@@ -214,18 +208,18 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
           {currentStep === 'identity' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" style={{ color: '#f5f5f5' }}>Project Name</Label>
+                <Label htmlFor="name" className="text-foreground">Project Name</Label>
                 <Input
                   id="name"
                   placeholder="My Awesome Project"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-input border-border text-foreground"
                   autoFocus
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="thumbnail" style={{ color: '#f5f5f5' }}>Thumbnail URL (Optional)</Label>
+                <Label htmlFor="thumbnail" className="text-foreground">Thumbnail URL (Optional)</Label>
                 <div className="flex gap-2">
                   <Input
                     id="thumbnail"
@@ -236,7 +230,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                       setThumbnailPreview(null)
                     }}
                     disabled={!!thumbnailPreview}
-                    style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                    className="bg-input border-border text-foreground disabled:opacity-50"
                   />
                   <input 
                     type="file" 
@@ -251,22 +245,18 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     title="Upload local image"
-                    style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
                   >
                     <Upload className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-xs" style={{ color: '#888888' }}>
+                <p className="text-xs text-muted-foreground">
                   Add a screenshot or logo for visual identification
                 </p>
                 
                 {/* Thumbnail Preview */}
                 {thumbnailPreview && (
                   <div className="mt-3 relative">
-                    <div 
-                      className="aspect-video rounded-lg overflow-hidden"
-                      style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-                    >
+                    <div className="aspect-video rounded-lg overflow-hidden bg-secondary border border-border">
                       <img 
                         src={thumbnailPreview} 
                         alt="Preview" 
@@ -276,13 +266,12 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 bg-black/80 text-white hover:bg-black/90"
                       onClick={() => {
                         setThumbnail('')
                         setThumbnailPreview(null)
                         if (fileInputRef.current) fileInputRef.current.value = ''
                       }}
-                      style={{ backgroundColor: 'rgba(18,18,18,0.8)', color: '#f5f5f5' }}
                     >
                       Clear
                     </Button>
@@ -296,30 +285,29 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
           {currentStep === 'connectivity' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="localPath" style={{ color: '#f5f5f5' }}>Local Path</Label>
+                <Label htmlFor="localPath" className="text-foreground">Local Path</Label>
                 <Input
                   id="localPath"
                   placeholder="C:\Projects\my-project"
                   value={localPath}
                   onChange={(e) => setLocalPath(e.target.value)}
-                  className="font-mono text-sm"
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="font-mono text-sm bg-input border-border text-foreground"
                   autoFocus
                 />
-                <p className="text-xs" style={{ color: '#888888' }}>
+                <p className="text-xs text-muted-foreground">
                   Full path to your project directory
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="liveUrl" style={{ color: '#f5f5f5' }}>Live URL (Optional)</Label>
+                <Label htmlFor="liveUrl" className="text-foreground">Live URL (Optional)</Label>
                 <Input
                   id="liveUrl"
                   placeholder="https://myproject.com"
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
-                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="bg-input border-border text-foreground"
                 />
-                <p className="text-xs" style={{ color: '#888888' }}>
+                <p className="text-xs text-muted-foreground">
                   Production website URL if deployed
                 </p>
               </div>
@@ -331,16 +319,15 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Vault Entries</h3>
-                  <p className="text-xs" style={{ color: '#888888' }}>
+                  <h3 className="text-sm font-medium text-foreground">Vault Entries</h3>
+                  <p className="text-xs text-muted-foreground">
                     Store login credentials securely
                   </p>
                 </div>
                 <Button
                   size="sm"
                   onClick={handleAddCredential}
-                  className="gap-1.5"
-                  style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                  className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Add
@@ -349,11 +336,11 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
 
               {credentials.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Key className="w-8 h-8 mb-2" style={{ color: '#888888' }} />
-                  <p className="text-sm" style={{ color: '#888888' }}>
+                  <Key className="w-8 h-8 mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
                     No credentials added yet
                   </p>
-                  <p className="text-xs" style={{ color: '#888888' }}>
+                  <p className="text-xs text-muted-foreground">
                     Click &quot;Add&quot; to store login details
                   </p>
                 </div>
@@ -362,22 +349,19 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                   {credentials.map((cred, index) => (
                     <div
                       key={index}
-                      className="p-3 rounded-lg space-y-2"
-                      style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
+                      className="p-3 rounded-lg space-y-2 bg-secondary border border-border"
                     >
                       <div className="flex items-center justify-between">
                         <Input
                           placeholder="Label (e.g., WP Admin)"
                           value={cred.label}
                           onChange={(e) => handleUpdateCredential(index, 'label', e.target.value)}
-                          className="h-8 text-sm"
-                          style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                          className="h-8 text-sm bg-card border-border text-foreground"
                         />
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 ml-2"
-                          style={{ color: '#888888' }}
+                          className="h-8 w-8 ml-2 text-muted-foreground hover:text-destructive"
                           onClick={() => handleRemoveCredential(index)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -388,16 +372,14 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                           placeholder="Username"
                           value={cred.username}
                           onChange={(e) => handleUpdateCredential(index, 'username', e.target.value)}
-                          className="h-8 text-sm"
-                          style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                          className="h-8 text-sm bg-card border-border text-foreground"
                         />
                         <Input
                           type="password"
                           placeholder="Password"
                           value={cred.password}
                           onChange={(e) => handleUpdateCredential(index, 'password', e.target.value)}
-                          className="h-8 text-sm"
-                          style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                          className="h-8 text-sm bg-card border-border text-foreground"
                         />
                       </div>
                     </div>
@@ -411,8 +393,8 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
           {currentStep === 'status' && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-1" style={{ color: '#f5f5f5' }}>Project Status</h3>
-                <p className="text-xs" style={{ color: '#888888' }}>
+                <h3 className="text-sm font-medium mb-1 text-foreground">Project Status</h3>
+                <p className="text-xs text-muted-foreground">
                   Is this project running locally or deployed live?
                 </p>
               </div>
@@ -421,24 +403,27 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                 <button
                   type="button"
                   onClick={() => setStatus('local')}
-                  className="p-4 rounded-xl border-2 transition-all text-left"
-                  style={{ 
-                    borderColor: status === 'local' ? '#4ADE80' : '#2a2a2a',
-                    backgroundColor: status === 'local' ? 'rgba(74, 222, 128, 0.1)' : 'transparent'
-                  }}
+                  className={cn(
+                    "p-4 rounded-xl border-2 transition-all text-left",
+                    status === 'local' 
+                      ? "border-primary bg-primary/10" 
+                      : "border-border bg-transparent hover:bg-secondary/50"
+                  )}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div
-                      className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-                      style={{ borderColor: status === 'local' ? '#4ADE80' : '#888888' }}
+                      className={cn(
+                        "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                        status === 'local' ? "border-primary" : "border-muted-foreground"
+                      )}
                     >
                       {status === 'local' && (
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
+                        <div className="w-2 h-2 rounded-full bg-primary" />
                       )}
                     </div>
-                    <span className="font-medium" style={{ color: '#f5f5f5' }}>Local</span>
+                    <span className="font-medium text-foreground">Local</span>
                   </div>
-                  <p className="text-xs" style={{ color: '#888888' }}>
+                  <p className="text-xs text-muted-foreground">
                     Development environment
                   </p>
                 </button>
@@ -446,24 +431,27 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                 <button
                   type="button"
                   onClick={() => setStatus('live')}
-                  className="p-4 rounded-xl border-2 transition-all text-left"
-                  style={{ 
-                    borderColor: status === 'live' ? '#4ADE80' : '#2a2a2a',
-                    backgroundColor: status === 'live' ? 'rgba(74, 222, 128, 0.1)' : 'transparent'
-                  }}
+                  className={cn(
+                    "p-4 rounded-xl border-2 transition-all text-left",
+                    status === 'live' 
+                      ? "border-primary bg-primary/10" 
+                      : "border-border bg-transparent hover:bg-secondary/50"
+                  )}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div
-                      className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-                      style={{ borderColor: status === 'live' ? '#4ADE80' : '#888888' }}
+                      className={cn(
+                        "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                        status === 'live' ? "border-primary" : "border-muted-foreground"
+                      )}
                     >
                       {status === 'live' && (
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
+                        <div className="w-2 h-2 rounded-full bg-primary" />
                       )}
                     </div>
-                    <span className="font-medium" style={{ color: '#f5f5f5' }}>Live</span>
+                    <span className="font-medium text-foreground">Live</span>
                   </div>
-                  <p className="text-xs" style={{ color: '#888888' }}>
+                  <p className="text-xs text-muted-foreground">
                     Deployed to production
                   </p>
                 </button>
@@ -473,16 +461,12 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
         </div>
 
         {/* Footer */}
-        <div 
-          className="flex items-center justify-between px-6 py-4"
-          style={{ borderTop: '1px solid #2a2a2a', backgroundColor: '#1a1a1a' }}
-        >
+        <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/50">
           <Button
             variant="ghost"
             onClick={handleBack}
             disabled={currentStepIndex === 0}
             className="gap-1.5"
-            style={{ color: currentStepIndex === 0 ? '#555555' : '#888888' }}
           >
             <ChevronLeft className="w-4 h-4" />
             Back
@@ -492,8 +476,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <Button 
               onClick={handleSubmit} 
               disabled={!canProceed()} 
-              className="gap-1.5"
-              style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+              className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Create Project
               <Check className="w-4 h-4" />
@@ -502,8 +485,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <Button 
               onClick={handleNext} 
               disabled={!canProceed()} 
-              className="gap-1.5"
-              style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+              className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Next
               <ChevronRight className="w-4 h-4" />

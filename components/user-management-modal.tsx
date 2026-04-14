@@ -78,10 +78,10 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}>
+      <DialogContent className="max-w-2xl bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-            <Users className="w-5 h-5" style={{ color: '#4ADE80' }} />
+          <DialogTitle className="flex items-center gap-2 text-foreground">
+            <Users className="w-5 h-5 text-primary" />
             User Management
           </DialogTitle>
         </DialogHeader>
@@ -110,17 +110,16 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
             <div className="space-y-4">
               <button
                 onClick={() => setShowInviteForm(!showInviteForm)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors w-full"
-                style={{ backgroundColor: '#252525', color: '#4ADE80' }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors w-full bg-secondary text-primary hover:bg-secondary/80"
               >
                 <Plus className="w-4 h-4" />
                 Invite New User
               </button>
 
               {showInviteForm && (
-                <div className="p-4 rounded-lg space-y-4" style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}>
+                <div className="p-4 rounded-lg space-y-4 bg-secondary border border-border">
                   <div className="space-y-2">
-                    <Label htmlFor="invite-username" className="text-sm" style={{ color: '#888888' }}>
+                    <Label htmlFor="invite-username" className="text-sm text-muted-foreground">
                       Username
                     </Label>
                     <Input
@@ -128,12 +127,12 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="new_user"
-                      style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                      className="bg-card border-border text-foreground"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="invite-email" className="text-sm" style={{ color: '#888888' }}>
+                    <Label htmlFor="invite-email" className="text-sm text-muted-foreground">
                       Email Address
                     </Label>
                     <Input
@@ -142,12 +141,12 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="user@example.com"
-                      style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                      className="bg-card border-border text-foreground"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="invite-password" className="text-sm" style={{ color: '#888888' }}>
+                    <Label htmlFor="invite-password" className="text-sm text-muted-foreground">
                       Temporary Master Password
                     </Label>
                     <Input
@@ -156,9 +155,9 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       value={tempPassword}
                       onChange={(e) => setTempPassword(e.target.value)}
                       placeholder="Minimum 6 characters"
-                      style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                      className="bg-card border-border text-foreground"
                     />
-                    <p className="text-xs" style={{ color: '#666666' }}>
+                    <p className="text-xs text-muted-foreground">
                       User will be prompted to change this password on first login
                     </p>
                   </div>
@@ -180,14 +179,12 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                   <div className="flex gap-3">
                     <Button
                       onClick={handleInviteUser}
-                      className="flex-1"
-                      style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       Send Invite
                     </Button>
                     <Button
                       onClick={() => setShowInviteForm(false)}
-                      style={{ backgroundColor: '#252525', color: '#f5f5f5', borderColor: '#2a2a2a' }}
                       variant="outline"
                     >
                       Cancel
@@ -201,7 +198,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
           {/* Pending Users Section */}
           {pendingUsers.length > 0 && isAdmin && (
             <div className="space-y-3">
-              <h3 className="text-sm font-medium flex items-center gap-2" style={{ color: '#FCD34D' }}>
+              <h3 className="text-sm font-medium flex items-center gap-2 text-yellow-500">
                 <Clock className="w-4 h-4" />
                 Pending Approval ({pendingUsers.length})
               </h3>
@@ -209,27 +206,22 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                 {pendingUsers.map((u) => (
                   <div 
                     key={u.id}
-                    className="flex items-center justify-between p-3 rounded-lg"
-                    style={{ backgroundColor: '#252525', border: '1px solid #FCD34D' }}
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary border border-yellow-500"
                   >
                     <div>
-                      <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                      <p className="text-sm font-medium text-foreground">
                         {u.username}
-                        <span 
-                          className="ml-2 text-xs px-2 py-0.5 rounded uppercase"
-                          style={{ backgroundColor: 'rgba(252, 211, 77, 0.2)', color: '#FCD34D' }}
-                        >
+                        <span className="ml-2 text-xs px-2 py-0.5 rounded uppercase bg-yellow-500/20 text-yellow-500">
                           Pending
                         </span>
                       </p>
-                      <p className="text-xs" style={{ color: '#888888' }}>{u.email}</p>
+                      <p className="text-xs text-muted-foreground">{u.email}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
                         onClick={() => handleToggleStatus(u.id, 'pending')}
-                        className="gap-1"
-                        style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                        className="gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         <ShieldCheck className="w-3 h-3" />
                         Activate
@@ -239,14 +231,14 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                           <Button
                             size="sm"
                             onClick={() => handleDeleteUser(u.id)}
-                            style={{ backgroundColor: '#EF4444', color: '#ffffff' }}
+                            className="bg-destructive text-destructive-foreground"
                           >
                             Confirm
                           </Button>
                           <Button
                             size="sm"
                             onClick={() => setDeleteConfirm(null)}
-                            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
+                            variant="secondary"
                           >
                             Cancel
                           </Button>
@@ -254,8 +246,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       ) : (
                         <button
                           onClick={() => setDeleteConfirm(u.id)}
-                          className="p-2 rounded-lg transition-colors hover:bg-red-900/20"
-                          style={{ color: '#EF4444' }}
+                          className="p-2 rounded-lg transition-colors hover:bg-destructive/20 text-destructive"
                           title="Delete user"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -270,29 +261,26 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
 
           {/* Active Users List */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
-              <ShieldCheck className="w-4 h-4" style={{ color: '#4ADE80' }} />
+            <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
+              <ShieldCheck className="w-4 h-4 text-primary" />
               Active Users ({activeUsers.length + 1})
             </h3>
 
             <div className="space-y-2 max-h-72 overflow-y-auto">
               {/* Current User (Admin) */}
               {user && (
-                <div 
-                  className="flex items-center justify-between p-3 rounded-lg"
-                  style={{ backgroundColor: '#252525', border: '1px solid #4ADE80' }}
-                >
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary border border-primary">
                   <div>
-                    <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                    <p className="text-sm font-medium text-foreground">
                       {user.username}
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#4ADE80', color: '#121212' }}>
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">
                         Admin
                       </span>
                       {user.role === 'admin' && (
-                        <span className="ml-2 text-xs" style={{ color: '#4ADE80' }}>(You)</span>
+                        <span className="ml-2 text-xs text-primary">(You)</span>
                       )}
                     </p>
-                    <p className="text-xs" style={{ color: '#888888' }}>{user.email}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
               )}
@@ -301,20 +289,16 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
               {activeUsers.map((u) => (
                 <div 
                   key={u.id}
-                  className="flex items-center justify-between p-3 rounded-lg"
-                  style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
+                  className="flex items-center justify-between p-3 rounded-lg bg-secondary border border-border"
                 >
                   <div>
-                    <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                    <p className="text-sm font-medium text-foreground">
                       {u.username}
-                      <span 
-                        className="ml-2 text-xs px-2 py-0.5 rounded"
-                        style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
-                      >
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">
                         Active
                       </span>
                     </p>
-                    <p className="text-xs" style={{ color: '#888888' }}>{u.email}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
                   </div>
                   {isAdmin && (
                     <>
@@ -323,14 +307,14 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                           <Button
                             size="sm"
                             onClick={() => handleDeleteUser(u.id)}
-                            style={{ backgroundColor: '#EF4444', color: '#ffffff' }}
+                            className="bg-destructive text-destructive-foreground"
                           >
                             Confirm
                           </Button>
                           <Button
                             size="sm"
                             onClick={() => setDeleteConfirm(null)}
-                            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
+                            variant="secondary"
                           >
                             Cancel
                           </Button>
@@ -338,8 +322,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       ) : (
                         <button
                           onClick={() => setDeleteConfirm(u.id)}
-                          className="p-2 rounded-lg transition-colors hover:bg-red-900/20"
-                          style={{ color: '#EF4444' }}
+                          className="p-2 rounded-lg transition-colors hover:bg-destructive/20 text-destructive"
                           title="Delete user"
                         >
                           <Trash2 className="w-4 h-4" />

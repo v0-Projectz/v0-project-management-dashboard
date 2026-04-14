@@ -77,37 +77,26 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 backdrop-blur-sm" 
-        style={{ backgroundColor: 'rgba(18, 18, 18, 0.8)' }}
+        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
         onClick={onClose} 
       />
       
       {/* Slide-out Panel */}
-      <div 
-        className="relative w-full max-w-md h-full overflow-hidden flex flex-col animate-in slide-in-from-right duration-300"
-        style={{ backgroundColor: '#1c1c1c', borderLeft: '1px solid #2a2a2a' }}
-      >
+      <div className="relative w-full max-w-md h-full overflow-hidden flex flex-col animate-in slide-in-from-right duration-300 bg-card border-l border-border">
         {/* Header */}
-        <div 
-          className="flex items-center justify-between px-6 py-4"
-          style={{ borderBottom: '1px solid #2a2a2a' }}
-        >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-            >
-              <Key className="w-5 h-5" style={{ color: '#4ADE80' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/20">
+              <Key className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold" style={{ color: '#f5f5f5' }}>{project.name}</h2>
-              <p className="text-xs" style={{ color: '#888888' }}>Project Vault</p>
+              <h2 className="font-semibold text-foreground">{project.name}</h2>
+              <p className="text-xs text-muted-foreground">Project Vault</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md transition-colors"
-            style={{ color: '#888888' }}
+            className="p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -119,12 +108,9 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
           <section>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Key className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                <h3 className="font-medium" style={{ color: '#f5f5f5' }}>Credentials</h3>
-                <span 
-                  className="text-xs px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
-                >
+                <Key className="w-4 h-4 text-primary" />
+                <h3 className="font-medium text-foreground">Credentials</h3>
+                <span className="text-xs px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
                   {project.credentials.length}
                 </span>
               </div>
@@ -133,7 +119,6 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                 size="sm"
                 onClick={() => setShowNewForm(!showNewForm)}
                 className="gap-1.5 h-8"
-                style={{ color: '#888888' }}
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add
@@ -142,38 +127,31 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
 
             {/* New Credential Form */}
             {showNewForm && (
-              <div 
-                className="p-4 rounded-lg mb-4 space-y-3"
-                style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-              >
+              <div className="p-4 rounded-lg mb-4 space-y-3 bg-secondary border border-border">
                 <Input
                   placeholder="Label (e.g., WP Admin)"
                   value={newCredential.label}
                   onChange={(e) => setNewCredential({ ...newCredential, label: e.target.value })}
-                  className="h-9"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="h-9 bg-card border-border text-foreground"
                 />
                 <Input
                   placeholder="Username"
                   value={newCredential.username}
                   onChange={(e) => setNewCredential({ ...newCredential, username: e.target.value })}
-                  className="h-9"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="h-9 bg-card border-border text-foreground"
                 />
                 <Input
                   type="password"
                   placeholder="Password"
                   value={newCredential.password}
                   onChange={(e) => setNewCredential({ ...newCredential, password: e.target.value })}
-                  className="h-9"
-                  style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  className="h-9 bg-card border-border text-foreground"
                 />
                 <div className="flex gap-2">
                   <Button 
                     size="sm" 
                     onClick={handleAddCredential} 
-                    className="flex-1"
-                    style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Add Credential
                   </Button>
@@ -184,7 +162,6 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                       setShowNewForm(false)
                       setNewCredential({ label: '', username: '', password: '' })
                     }}
-                    style={{ color: '#888888' }}
                   >
                     Cancel
                   </Button>
@@ -195,8 +172,8 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
             {/* Credential List */}
             {project.credentials.length === 0 && !showNewForm ? (
               <div className="text-center py-8">
-                <Key className="w-8 h-8 mx-auto mb-2 opacity-50" style={{ color: '#888888' }} />
-                <p className="text-sm" style={{ color: '#888888' }}>No credentials stored</p>
+                <Key className="w-8 h-8 mx-auto mb-2 opacity-50 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">No credentials stored</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -223,83 +200,75 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
               className="w-full flex items-center justify-between py-2 text-left"
             >
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                <h3 className="font-medium" style={{ color: '#f5f5f5' }}>Email & SMTP</h3>
+                <Mail className="w-4 h-4 text-primary" />
+                <h3 className="font-medium text-foreground">Email & SMTP</h3>
               </div>
               {emailExpanded ? (
-                <ChevronUp className="w-4 h-4" style={{ color: '#888888' }} />
+                <ChevronUp className="w-4 h-4 text-muted-foreground" />
               ) : (
-                <ChevronDown className="w-4 h-4" style={{ color: '#888888' }} />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               )}
             </button>
 
             {emailExpanded && (
-              <div 
-                className="mt-4 p-4 rounded-lg space-y-4"
-                style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-              >
+              <div className="mt-4 p-4 rounded-lg space-y-4 bg-secondary border border-border">
                 <div className="space-y-2">
-                  <Label className="text-xs" style={{ color: '#888888' }}>Email Address</Label>
+                  <Label className="text-xs text-muted-foreground">Email Address</Label>
                   <Input
                     placeholder="admin@example.com"
                     value={emailSettings.email}
                     onChange={(e) => setEmailSettings({ ...emailSettings, email: e.target.value })}
-                    className="h-9"
-                    style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                    className="h-9 bg-card border-border text-foreground"
                   />
                 </div>
 
-                <div className="pt-2" style={{ borderTop: '1px solid #2a2a2a' }}>
+                <div className="pt-2 border-t border-border">
                   <div className="flex items-center gap-2 mb-3">
-                    <Server className="w-3.5 h-3.5" style={{ color: '#888888' }} />
-                    <span className="text-xs font-medium uppercase tracking-wider" style={{ color: '#888888' }}>
+                    <Server className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       SMTP Settings
                     </span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs" style={{ color: '#888888' }}>Host</Label>
+                      <Label className="text-xs text-muted-foreground">Host</Label>
                       <Input
                         placeholder="smtp.example.com"
                         value={emailSettings.smtpHost}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpHost: e.target.value })}
-                        className="h-9 text-sm"
-                        style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                        className="h-9 text-sm bg-card border-border text-foreground"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs" style={{ color: '#888888' }}>Port</Label>
+                      <Label className="text-xs text-muted-foreground">Port</Label>
                       <Input
                         placeholder="587"
                         value={emailSettings.smtpPort}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: e.target.value })}
-                        className="h-9 text-sm"
-                        style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                        className="h-9 text-sm bg-card border-border text-foreground"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="space-y-2">
-                      <Label className="text-xs" style={{ color: '#888888' }}>Username</Label>
+                      <Label className="text-xs text-muted-foreground">Username</Label>
                       <Input
                         placeholder="smtp_user"
                         value={emailSettings.smtpUser}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpUser: e.target.value })}
-                        className="h-9 text-sm"
-                        style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                        className="h-9 text-sm bg-card border-border text-foreground"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs" style={{ color: '#888888' }}>Password</Label>
+                      <Label className="text-xs text-muted-foreground">Password</Label>
                       <Input
                         type="password"
                         placeholder="smtp_pass"
                         value={emailSettings.smtpPass}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpPass: e.target.value })}
-                        className="h-9 text-sm"
-                        style={{ backgroundColor: '#1c1c1c', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                        className="h-9 text-sm bg-card border-border text-foreground"
                       />
                     </div>
                   </div>
@@ -308,8 +277,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                 <Button 
                   size="sm" 
                   onClick={handleSaveEmailSettings} 
-                  className="w-full"
-                  style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Save Email Settings
                 </Button>
@@ -319,11 +287,8 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
         </div>
 
         {/* Footer */}
-        <div 
-          className="px-6 py-4 text-center"
-          style={{ borderTop: '1px solid #2a2a2a' }}
-        >
-          <p className="text-xs" style={{ color: '#888888' }}>
+        <div className="px-6 py-4 text-center border-t border-border">
+          <p className="text-xs text-muted-foreground">
             All credentials are stored locally and encrypted
           </p>
         </div>
@@ -352,17 +317,13 @@ function CredentialItem({
   onDelete,
 }: CredentialItemProps) {
   return (
-    <div 
-      className="p-4 rounded-lg"
-      style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
-    >
+    <div className="p-4 rounded-lg bg-secondary border border-border">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>{credential.label}</span>
+        <span className="text-sm font-medium text-foreground">{credential.label}</span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
-          style={{ color: '#888888' }}
+          className="h-7 w-7 text-muted-foreground hover:text-destructive"
           onClick={onDelete}
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -371,21 +332,17 @@ function CredentialItem({
 
       {/* Username Row */}
       <div className="flex items-center gap-2 mb-2">
-        <div 
-          className="flex-1 rounded px-3 py-1.5 text-sm font-mono"
-          style={{ backgroundColor: '#1c1c1c', color: '#f5f5f5' }}
-        >
+        <div className="flex-1 rounded px-3 py-1.5 text-sm font-mono bg-card text-foreground">
           {credential.username}
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 flex-shrink-0"
-          style={{ color: '#888888' }}
+          className="h-8 w-8 flex-shrink-0 text-muted-foreground"
           onClick={() => onCopy(credential.username, `${credential.id}-user`)}
         >
           {copiedField === `${credential.id}-user` ? (
-            <Check className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
+            <Check className="w-3.5 h-3.5 text-primary" />
           ) : (
             <Copy className="w-3.5 h-3.5" />
           )}
@@ -394,17 +351,13 @@ function CredentialItem({
 
       {/* Password Row */}
       <div className="flex items-center gap-2">
-        <div 
-          className="flex-1 rounded px-3 py-1.5 text-sm font-mono"
-          style={{ backgroundColor: '#1c1c1c', color: '#f5f5f5' }}
-        >
+        <div className="flex-1 rounded px-3 py-1.5 text-sm font-mono bg-card text-foreground">
           {showPassword ? credential.password : '••••••••'}
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 flex-shrink-0"
-          style={{ color: '#888888' }}
+          className="h-8 w-8 flex-shrink-0 text-muted-foreground"
           onClick={onTogglePassword}
         >
           {showPassword ? (
@@ -416,12 +369,11 @@ function CredentialItem({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 flex-shrink-0"
-          style={{ color: '#888888' }}
+          className="h-8 w-8 flex-shrink-0 text-muted-foreground"
           onClick={() => onCopy(credential.password, `${credential.id}-pass`)}
         >
           {copiedField === `${credential.id}-pass` ? (
-            <Check className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
+            <Check className="w-3.5 h-3.5 text-primary" />
           ) : (
             <Copy className="w-3.5 h-3.5" />
           )}
