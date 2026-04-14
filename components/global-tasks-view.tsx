@@ -23,24 +23,24 @@ import type { Task, TaskStatus } from '@/lib/types'
 type TabType = 'inbox' | 'archived'
 
 // Status configuration
-const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgColor: string }> = {
+const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgClass: string }> = {
   'todo': { 
     label: 'To Do', 
     icon: Circle, 
-    color: '#888888',
-    bgColor: 'rgba(136, 136, 136, 0.1)'
+    color: 'text-muted-foreground',
+    bgClass: 'bg-muted/50'
   },
   'in-progress': { 
     label: 'In Progress', 
     icon: Clock, 
-    color: '#F59E0B',
-    bgColor: 'rgba(245, 158, 11, 0.1)'
+    color: 'text-amber-500',
+    bgClass: 'bg-amber-500/10'
   },
   'done': { 
     label: 'Done', 
     icon: CheckCircle2, 
-    color: '#4ADE80',
-    bgColor: 'rgba(74, 222, 128, 0.1)'
+    color: 'text-primary',
+    bgClass: 'bg-primary/10'
   },
 }
 
@@ -60,14 +60,6 @@ export function GlobalTasksView() {
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
-  
-  // Theme colors
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  const cardBg = isDark ? '#1c1c1c' : '#FFFFFF'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
-  const surfaceBg = isDark ? '#252525' : '#F9FAFB'
-  const hoverBg = isDark ? '#252525' : '#F3F4F6'
   
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
@@ -160,28 +152,23 @@ export function GlobalTasksView() {
       <div 
         key={task.id}
         className={cn(
-          'group flex items-center gap-3 px-4 py-3 transition-all',
-          isDone && 'opacity-60'
+          'group flex items-center gap-3 px-4 py-3 transition-all border-b border-border',
+          'hover:bg-muted/50',
+          isDone && 'opacity-60',
+          isInProgress && 'bg-amber-500/5'
         )}
-        style={{ 
-          borderBottom: `1px solid ${borderColor}`,
-          backgroundColor: isInProgress 
-            ? (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.08)')
-            : 'transparent',
-          boxShadow: isInProgress ? 'inset 0 0 20px rgba(245, 158, 11, 0.05)' : 'none'
-        }}
-        onMouseEnter={(e) => !isInProgress && (e.currentTarget.style.backgroundColor = hoverBg)}
-        onMouseLeave={(e) => !isInProgress && (e.currentTarget.style.backgroundColor = isInProgress ? (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.08)') : 'transparent')}
       >
         {/* Status Badge - Clickable */}
         <button
           onClick={() => handleCycleStatus(projectId, task.id)}
-          className="flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0"
-          style={{ backgroundColor: config.bgColor }}
+          className={cn(
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0",
+            config.bgClass
+          )}
           title={`Status: ${config.label} (click to change)`}
         >
-          <StatusIcon className="w-3.5 h-3.5" style={{ color: config.color }} />
-          <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: config.color }}>
+          <StatusIcon className={cn("w-3.5 h-3.5", config.color)} />
+          <span className={cn("text-[10px] font-medium uppercase tracking-wider", config.color)}>
             {config.label}
           </span>
         </button>
@@ -197,16 +184,14 @@ export function GlobalTasksView() {
               if (e.key === 'Escape') setEditingTaskId(null)
             }}
             onBlur={() => handleSaveEdit(projectId)}
-            className="flex-1 h-8 text-sm"
-            style={{ backgroundColor: cardBg, borderColor: '#4ADE80', color: textColor }}
+            className="flex-1 h-8 text-sm bg-card border-primary text-foreground"
           />
         ) : (
           <span 
             className={cn(
-              'flex-1 cursor-pointer transition-colors hover:opacity-80',
-              isDone && 'line-through'
+              'flex-1 cursor-pointer transition-colors hover:opacity-80 text-foreground',
+              isDone && 'line-through text-muted-foreground'
             )}
-            style={{ color: isDone ? mutedColor : textColor }}
             onClick={() => handleStartEdit(task)}
           >
             {task.title}
@@ -217,15 +202,13 @@ export function GlobalTasksView() {
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => handleStartEdit(task)}
-            className="p-1.5 rounded transition-colors"
-            style={{ color: mutedColor }}
+            className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => deleteTask(projectId, task.id)}
-            className="p-1.5 rounded transition-colors hover:text-red-500"
-            style={{ color: mutedColor }}
+            className="p-1.5 rounded transition-colors text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -238,59 +221,59 @@ export function GlobalTasksView() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold mb-1" style={{ color: textColor }}>
+        <h1 className="text-2xl font-semibold mb-1 text-foreground">
           Tasks
         </h1>
-        <p className="text-sm" style={{ color: mutedColor }}>
+        <p className="text-sm text-muted-foreground">
           Command center for all project tasks
         </p>
       </div>
 
       {/* Tabs */}
-      <div 
-        className={cn('flex gap-1 p-1 rounded-lg w-fit', !isDark && 'card-shadow')}
-        style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-      >
+      <div className={cn(
+        'flex gap-1 p-1 rounded-lg w-fit bg-card border border-border',
+        !isDark && 'card-shadow'
+      )}>
         <button
           onClick={() => setActiveTab('inbox')}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          style={{ 
-            backgroundColor: activeTab === 'inbox' ? '#4ADE80' : 'transparent',
-            color: activeTab === 'inbox' ? '#121212' : mutedColor
-          }}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors",
+            activeTab === 'inbox' 
+              ? "bg-primary text-primary-foreground" 
+              : "text-muted-foreground hover:text-foreground"
+          )}
         >
           <Inbox className="w-4 h-4" />
           My Inbox
           {inboxCount > 0 && (
-            <span 
-              className="px-1.5 py-0.5 rounded text-xs"
-              style={{ 
-                backgroundColor: activeTab === 'inbox' ? 'rgba(18,18,18,0.2)' : 'rgba(74,222,128,0.2)',
-                color: activeTab === 'inbox' ? '#121212' : '#4ADE80'
-              }}
-            >
+            <span className={cn(
+              "px-1.5 py-0.5 rounded text-xs",
+              activeTab === 'inbox' 
+                ? "bg-black/20 text-primary-foreground" 
+                : "bg-primary/20 text-primary"
+            )}>
               {inboxCount}
             </span>
           )}
         </button>
         <button
           onClick={() => setActiveTab('archived')}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          style={{ 
-            backgroundColor: activeTab === 'archived' ? '#4ADE80' : 'transparent',
-            color: activeTab === 'archived' ? '#121212' : mutedColor
-          }}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors",
+            activeTab === 'archived' 
+              ? "bg-primary text-primary-foreground" 
+              : "text-muted-foreground hover:text-foreground"
+          )}
         >
           <Archive className="w-4 h-4" />
           Done
           {archivedCount > 0 && (
-            <span 
-              className="px-1.5 py-0.5 rounded text-xs"
-              style={{ 
-                backgroundColor: activeTab === 'archived' ? 'rgba(18,18,18,0.2)' : (isDark ? '#2a2a2a' : '#E5E7EB'),
-                color: activeTab === 'archived' ? '#121212' : mutedColor
-              }}
-            >
+            <span className={cn(
+              "px-1.5 py-0.5 rounded text-xs",
+              activeTab === 'archived' 
+                ? "bg-black/20 text-primary-foreground" 
+                : "bg-muted text-muted-foreground"
+            )}>
               {archivedCount}
             </span>
           )}
@@ -299,24 +282,22 @@ export function GlobalTasksView() {
 
       {/* Quick Add (Inbox only) */}
       {activeTab === 'inbox' && (
-        <div 
-          className={cn('flex gap-2 p-4 rounded-xl', !isDark && 'card-shadow')}
-          style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-        >
+        <div className={cn(
+          'flex gap-2 p-4 rounded-xl bg-card border border-border',
+          !isDark && 'card-shadow'
+        )}>
           <Input
             placeholder={projects.length > 0 ? `Quick add task to ${projects[0].name}...` : 'Add a project first...'}
             value={quickAddText}
             onChange={(e) => setQuickAddText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleQuickAdd()}
             disabled={projects.length === 0}
-            className="text-base"
-            style={{ backgroundColor: surfaceBg, borderColor, color: textColor }}
+            className="text-base bg-secondary border-border text-foreground placeholder:text-muted-foreground"
           />
           <Button 
             onClick={handleQuickAdd}
             disabled={!quickAddText.trim() || projects.length === 0}
-            className="gap-1.5"
-            style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+            className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="w-4 h-4" />
             Add
@@ -328,18 +309,15 @@ export function GlobalTasksView() {
       <div className="space-y-3">
         {activeTab === 'inbox' && (
           Object.keys(inboxTasks).length === 0 ? (
-            <div 
-              className={cn('flex flex-col items-center justify-center py-16 rounded-xl', !isDark && 'card-shadow')}
-              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-            >
-              <div 
-                className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: surfaceBg }}
-              >
-                <Inbox className="w-8 h-8" style={{ color: '#4ADE80' }} />
+            <div className={cn(
+              'flex flex-col items-center justify-center py-16 rounded-xl bg-card border border-border',
+              !isDark && 'card-shadow'
+            )}>
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 bg-secondary">
+                <Inbox className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-medium mb-1" style={{ color: textColor }}>Inbox Zero</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>
+              <h3 className="font-medium mb-1 text-foreground">Inbox Zero</h3>
+              <p className="text-sm text-center max-w-xs text-muted-foreground">
                 No pending tasks. Add tasks from project cards or use Quick Add above.
               </p>
             </div>
@@ -347,40 +325,33 @@ export function GlobalTasksView() {
             Object.values(inboxTasks).map((group) => (
               <div 
                 key={group.projectId}
-                className={cn('rounded-xl overflow-hidden', !isDark && 'card-shadow')}
-                style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
+                className={cn(
+                  'rounded-xl overflow-hidden bg-card border border-border',
+                  !isDark && 'card-shadow'
+                )}
               >
                 <button
                   onClick={() => toggleProjectExpanded(group.projectId)}
-                  className="w-full flex items-center justify-between p-4 transition-colors"
-                  style={{ backgroundColor: 'transparent' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="w-full flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-                    >
-                      <FolderOpen className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/20">
+                      <FolderOpen className="w-4 h-4 text-primary" />
                     </div>
-                    <span className="font-medium" style={{ color: textColor }}>{group.projectName}</span>
-                    <span 
-                      className="text-xs px-2 py-0.5 rounded"
-                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB', color: mutedColor }}
-                    >
+                    <span className="font-medium text-foreground">{group.projectName}</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
                       {group.tasks.length} task{group.tasks.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
-                    <ChevronDown className="w-4 h-4" style={{ color: mutedColor }} />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" style={{ color: mutedColor }} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                 </button>
                 
                 {expandedProjects.includes(group.projectId) && (
-                  <div style={{ borderTop: `1px solid ${borderColor}` }}>
+                  <div className="border-t border-border">
                     {group.tasks.map((task) => renderTask(task, group.projectId))}
                   </div>
                 )}
@@ -391,18 +362,15 @@ export function GlobalTasksView() {
 
         {activeTab === 'archived' && (
           Object.keys(archivedTasks).length === 0 ? (
-            <div 
-              className={cn('flex flex-col items-center justify-center py-16 rounded-xl', !isDark && 'card-shadow')}
-              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-            >
-              <div 
-                className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: surfaceBg }}
-              >
-                <Archive className="w-8 h-8" style={{ color: mutedColor }} />
+            <div className={cn(
+              'flex flex-col items-center justify-center py-16 rounded-xl bg-card border border-border',
+              !isDark && 'card-shadow'
+            )}>
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 bg-secondary">
+                <Archive className="w-8 h-8 text-muted-foreground" />
               </div>
-              <h3 className="font-medium mb-1" style={{ color: textColor }}>No Completed Tasks</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>
+              <h3 className="font-medium mb-1 text-foreground">No Completed Tasks</h3>
+              <p className="text-sm text-center max-w-xs text-muted-foreground">
                 Tasks marked as Done will appear here.
               </p>
             </div>
@@ -410,39 +378,33 @@ export function GlobalTasksView() {
             Object.values(archivedTasks).map((group) => (
               <div 
                 key={group.projectId}
-                className={cn('rounded-xl overflow-hidden', !isDark && 'card-shadow')}
-                style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
+                className={cn(
+                  'rounded-xl overflow-hidden bg-card border border-border',
+                  !isDark && 'card-shadow'
+                )}
               >
                 <button
                   onClick={() => toggleProjectExpanded(group.projectId)}
-                  className="w-full flex items-center justify-between p-4 transition-colors"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="w-full flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}
-                    >
-                      <FolderOpen className="w-4 h-4" style={{ color: mutedColor }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
+                      <FolderOpen className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    <span className="font-medium" style={{ color: mutedColor }}>{group.projectName}</span>
-                    <span 
-                      className="text-xs px-2 py-0.5 rounded"
-                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB', color: mutedColor }}
-                    >
+                    <span className="font-medium text-muted-foreground">{group.projectName}</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
                       {group.tasks.length} done
                     </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
-                    <ChevronDown className="w-4 h-4" style={{ color: mutedColor }} />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" style={{ color: mutedColor }} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                 </button>
                 
                 {expandedProjects.includes(group.projectId) && (
-                  <div style={{ borderTop: `1px solid ${borderColor}` }}>
+                  <div className="border-t border-border">
                     {group.tasks.map((task) => renderTask(task, group.projectId))}
                   </div>
                 )}

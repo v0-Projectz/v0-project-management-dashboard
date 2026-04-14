@@ -4,11 +4,11 @@ import { FolderKanban, Plus, Search, ExternalLink, FolderOpen, MonitorPlay, Sett
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
 
 /**
  * Tauri 2.0 Hook Placeholder
- * Replace this function with Rust shell commands when exporting to Tauri desktop.
  */
 const handleOpenPath = (path: string, action: 'cursor' | 'explorer' | 'terminal' = 'explorer') => {
   switch (action) {
@@ -52,14 +52,6 @@ function ProjectListItem({
   const appSettings = useAppStore((s) => s.appSettings)
   const isDark = appSettings.theme === 'dark'
   
-  // Theme colors
-  const cardBg = isDark ? '#1c1c1c' : '#FFFFFF'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  const surfaceBg = isDark ? '#252525' : '#F9FAFB'
-  const hoverBg = isDark ? '#252525' : '#F3F4F6'
-  
   const totalTasks = project.tasks.length
   const completedTasks = project.tasks.filter(t => t.completed).length
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
@@ -80,59 +72,54 @@ function ProjectListItem({
 
   return (
     <div
-      className="flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer"
-      style={{ 
-        backgroundColor: cardBg, 
-        border: `1px solid ${borderColor}` 
-      }}
+      className={cn(
+        "flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer",
+        "bg-card border border-border hover:bg-secondary/50",
+        !isDark && "card-shadow"
+      )}
       onClick={onSelect}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = cardBg}
     >
       {/* Thumbnail */}
-      <div 
-        className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center"
-        style={{ backgroundColor: surfaceBg }}
-      >
+      <div className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center bg-secondary">
         {project.thumbnail ? (
           <img src={project.thumbnail} alt={project.name} className="w-full h-full object-cover" />
         ) : (
-          <MonitorPlay className="w-6 h-6" style={{ color: mutedColor }} />
+          <MonitorPlay className="w-6 h-6 text-muted-foreground" />
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-medium truncate" style={{ color: textColor }}>{project.name}</h3>
+          <h3 className="font-medium truncate text-foreground">{project.name}</h3>
           <span 
-            className="px-2 py-0.5 text-[10px] uppercase font-semibold rounded"
-            style={{ 
-              backgroundColor: project.status === 'live' ? '#4ADE80' : (isDark ? '#2a2a2a' : '#E5E7EB'),
-              color: project.status === 'live' ? '#121212' : mutedColor
-            }}
+            className={cn(
+              "px-2 py-0.5 text-[10px] uppercase font-semibold rounded",
+              project.status === 'live' 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted text-muted-foreground"
+            )}
           >
             {project.status}
           </span>
         </div>
-        <p className="text-xs truncate mt-0.5" style={{ color: mutedColor }}>{project.localPath}</p>
+        <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
         
         {/* Progress Bar with clickable task counter */}
         <div className="flex items-center gap-3 mt-2">
-          <div className="flex-1 h-1.5 rounded-full max-w-32" style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}>
+          <div className="flex-1 h-1.5 rounded-full max-w-32 bg-muted">
             <div 
-              className="h-full rounded-full"
-              style={{ width: `${calculatedProgress}%`, backgroundColor: '#4ADE80' }}
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${calculatedProgress}%` }}
             />
           </div>
-          <span className="text-xs" style={{ color: '#4ADE80' }}>{calculatedProgress}%</span>
+          <span className="text-xs text-primary">{calculatedProgress}%</span>
           <button
             onClick={(e) => {
               e.stopPropagation()
               onOpenTaskDrawer?.()
             }}
-            className="text-xs hover:underline transition-colors"
-            style={{ color: mutedColor }}
+            className="text-xs hover:underline transition-colors text-muted-foreground"
           >
             {completedTasks}/{totalTasks} tasks
           </button>
@@ -144,8 +131,7 @@ function ProjectListItem({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0"
-          style={{ color: mutedColor }}
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={handleOpenInCursor}
           title="Open in Cursor"
         >
@@ -154,8 +140,7 @@ function ProjectListItem({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0"
-          style={{ color: mutedColor }}
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={handleOpenInExplorer}
           title="Copy Path"
         >
@@ -165,20 +150,18 @@ function ProjectListItem({
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0"
-            style={{ color: '#4ADE80' }}
+            className="h-8 w-8 p-0 text-primary hover:text-primary/80"
             onClick={handleOpenLiveUrl}
             title="Open Live URL"
           >
             <ExternalLink className="w-4 h-4" />
           </Button>
         )}
-        <div className="w-px h-6" style={{ backgroundColor: borderColor }} />
+        <div className="w-px h-6 bg-border" />
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0"
-          style={{ color: mutedColor }}
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={onOpenVault}
           title="Open Vault"
         >
@@ -187,8 +170,7 @@ function ProjectListItem({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0"
-          style={{ color: mutedColor }}
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={onEdit}
           title="Edit Project"
         >
@@ -197,8 +179,7 @@ function ProjectListItem({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0"
-          style={{ color: '#EF4444' }}
+          className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
           onClick={onDelete}
           title="Delete Project"
         >
@@ -216,28 +197,23 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
   const viewMode = appSettings.projectViewMode
   
   const isDark = appSettings.theme === 'dark'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  const cardBg = isDark ? '#1c1c1c' : '#FFFFFF'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
 
   if (allProjects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div 
-          className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
-          style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-        >
-          <FolderKanban className="w-10 h-10" style={{ color: mutedColor }} />
+        <div className={cn(
+          "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-card border border-border",
+          !isDark && "card-shadow"
+        )}>
+          <FolderKanban className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-medium mb-2" style={{ color: textColor }}>No projects yet</h2>
-        <p className="text-sm mb-6 text-center max-w-md" style={{ color: mutedColor }}>
+        <h2 className="text-lg font-medium mb-2 text-foreground">No projects yet</h2>
+        <p className="text-sm mb-6 text-center max-w-md text-muted-foreground">
           Get started by creating your first project. Track credentials, manage tasks, and keep everything organized.
         </p>
         <Button 
           onClick={onAddProject} 
-          className="gap-2"
-          style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="w-4 h-4" />
           Add Your First Project
@@ -250,14 +226,14 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
   if (projects.length === 0 && searchQuery) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div 
-          className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
-          style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
-        >
-          <Search className="w-10 h-10" style={{ color: mutedColor }} />
+        <div className={cn(
+          "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-card border border-border",
+          !isDark && "card-shadow"
+        )}>
+          <Search className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-medium mb-2" style={{ color: textColor }}>No projects found</h2>
-        <p className="text-sm mb-6 text-center max-w-md" style={{ color: mutedColor }}>
+        <h2 className="text-lg font-medium mb-2 text-foreground">No projects found</h2>
+        <p className="text-sm mb-6 text-center max-w-md text-muted-foreground">
           No projects match &quot;{searchQuery}&quot;. Try a different search term.
         </p>
       </div>
@@ -270,29 +246,28 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div>
-            <p className="text-2xl font-semibold" style={{ color: textColor }}>{allProjects.length}</p>
-            <p className="text-xs uppercase tracking-wider" style={{ color: mutedColor }}>Total Projects</p>
+            <p className="text-2xl font-semibold text-foreground">{allProjects.length}</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Projects</p>
           </div>
-          <div className="w-px h-8" style={{ backgroundColor: borderColor }} />
+          <div className="w-px h-8 bg-border" />
           <div>
-            <p className="text-2xl font-semibold" style={{ color: '#4ADE80' }}>
+            <p className="text-2xl font-semibold text-primary">
               {allProjects.filter(p => p.status === 'live').length}
             </p>
-            <p className="text-xs uppercase tracking-wider" style={{ color: mutedColor }}>Live</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Live</p>
           </div>
-          <div className="w-px h-8" style={{ backgroundColor: borderColor }} />
+          <div className="w-px h-8 bg-border" />
           <div>
-            <p className="text-2xl font-semibold" style={{ color: textColor }}>
+            <p className="text-2xl font-semibold text-foreground">
               {allProjects.filter(p => p.status === 'local').length}
             </p>
-            <p className="text-xs uppercase tracking-wider" style={{ color: mutedColor }}>Local</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Local</p>
           </div>
         </div>
         <Button 
           onClick={onAddProject} 
           size="sm" 
-          className="gap-2"
-          style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="w-4 h-4" />
           Add Project
@@ -301,7 +276,7 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
 
       {/* Search Results Indicator */}
       {searchQuery && (
-        <p className="text-sm" style={{ color: mutedColor }}>
+        <p className="text-sm text-muted-foreground">
           Showing {projects.length} result{projects.length !== 1 ? 's' : ''} for &quot;{searchQuery}&quot;
         </p>
       )}

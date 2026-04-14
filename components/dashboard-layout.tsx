@@ -45,16 +45,8 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
     }
   }
 
-  // True Light Mode Colors
-  const bgColor = isDark ? '#121212' : '#F9FAFB'
-  const surfaceColor = isDark ? '#1c1c1c' : '#FFFFFF'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  const headerBg = isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)'
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
+    <div className="min-h-screen bg-background">
       <DashboardSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -70,23 +62,17 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
       >
         {/* Header Bar */}
         <header 
-          className="h-16 sticky top-0 z-30 flex items-center justify-between px-6"
-          style={{ 
-            backgroundColor: headerBg, 
-            backdropFilter: 'blur(8px)',
-            borderBottom: `1px solid ${borderColor}` 
-          }}
+          className={cn(
+            "h-16 sticky top-0 z-30 flex items-center justify-between px-6 border-b border-border",
+            isDark 
+              ? "bg-[#121212]/80 backdrop-blur-md" 
+              : "bg-white/90 backdrop-blur-md"
+          )}
         >
           <div className="flex items-center gap-4">
             {/* MSC Icon and User Info */}
             <div className="flex items-center gap-2.5">
-              <div 
-                className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0" 
-                style={{ 
-                  backgroundColor: surfaceColor, 
-                  border: `1px solid ${borderColor}` 
-                }}
-              >
+              <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-card border border-border">
                 <Image 
                   src="/msc-icon.png" 
                   alt="MSC" 
@@ -96,46 +82,48 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                 />
               </div>
               {user && (
-                <span className="text-sm font-semibold leading-none" style={{ color: textColor }}>
+                <span className="text-sm font-semibold leading-none text-foreground">
                   {user.username}
                 </span>
               )}
             </div>
             
-            <div className="h-6 w-px" style={{ backgroundColor: borderColor }} />
+            <div className="h-6 w-px bg-border" />
             
-            <h1 className="text-lg font-semibold" style={{ color: textColor }}>{getViewTitle()}</h1>
+            <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#4ADE80' }} />
-              <span className="text-xs" style={{ color: mutedColor }}>System Online</span>
+              <div className="w-2 h-2 rounded-full animate-pulse bg-primary" />
+              <span className="text-xs text-muted-foreground">System Online</span>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             {/* View Toggle (Bento Grid / List) */}
             {currentView === 'dashboard' && (
-              <div 
-                className={cn('flex items-center p-1 rounded-lg', !isDark && 'card-shadow')}
-                style={{ backgroundColor: surfaceColor, border: `1px solid ${borderColor}` }}
-              >
+              <div className={cn(
+                'flex items-center p-1 rounded-lg border border-border bg-card',
+                !isDark && 'card-shadow'
+              )}>
                 <button
                   onClick={() => setProjectViewMode('grid')}
-                  className="p-2 rounded-md transition-colors"
-                  style={{ 
-                    backgroundColor: appSettings.projectViewMode === 'grid' ? '#4ADE80' : 'transparent',
-                    color: appSettings.projectViewMode === 'grid' ? '#121212' : mutedColor
-                  }}
+                  className={cn(
+                    "p-2 rounded-md transition-colors",
+                    appSettings.projectViewMode === 'grid' 
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
                   title="Grid View"
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setProjectViewMode('list')}
-                  className="p-2 rounded-md transition-colors"
-                  style={{ 
-                    backgroundColor: appSettings.projectViewMode === 'list' ? '#4ADE80' : 'transparent',
-                    color: appSettings.projectViewMode === 'list' ? '#121212' : mutedColor
-                  }}
+                  className={cn(
+                    "p-2 rounded-md transition-colors",
+                    appSettings.projectViewMode === 'list' 
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
                   title="List View"
                 >
                   <List className="w-4 h-4" />
@@ -146,18 +134,17 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
             {/* Search Field */}
             {currentView === 'dashboard' && (
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: mutedColor }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className={cn('pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[#4ADE80]', !isDark && 'card-shadow')}
-                  style={{ 
-                    backgroundColor: surfaceColor, 
-                    border: `1px solid ${borderColor}`,
-                    color: textColor
-                  }}
+                  className={cn(
+                    'pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary',
+                    'bg-card border border-border text-foreground placeholder:text-muted-foreground',
+                    !isDark && 'card-shadow'
+                  )}
                 />
               </div>
             )}
@@ -165,18 +152,16 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={cn('p-2 rounded-lg transition-colors', !isDark && 'card-shadow')}
-              style={{ 
-                backgroundColor: surfaceColor, 
-                border: `1px solid ${borderColor}`,
-                color: mutedColor
-              }}
+              className={cn(
+                'p-2 rounded-lg transition-colors bg-card border border-border text-muted-foreground hover:text-foreground',
+                !isDark && 'card-shadow'
+              )}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             
-            <div className="flex items-center gap-3 text-xs" style={{ color: mutedColor }}>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
               <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
@@ -189,7 +174,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         </div>
 
         {/* Footer */}
-        <footer className="fixed bottom-0 right-0 p-4 text-xs" style={{ color: mutedColor }}>
+        <footer className="fixed bottom-0 right-0 p-4 text-xs text-muted-foreground">
           Powered by the MSC Media Engine
         </footer>
       </main>

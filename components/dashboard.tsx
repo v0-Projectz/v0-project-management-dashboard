@@ -26,10 +26,6 @@ export function Dashboard() {
   const currentView = useAppStore((s) => s.currentView)
   const appSettings = useAppStore((s) => s.appSettings)
   
-  const isDark = appSettings.theme === 'dark'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  
   const vaultProject = projects.find((p) => p.id === vaultProjectId)
   const selectedProject = projects.find((p) => p.id === selectedProjectId)
   const editProject = projects.find((p) => p.id === editProjectId)
@@ -70,11 +66,10 @@ export function Dashboard() {
               <div className="w-80 flex-shrink-0">
                 <div className="sticky top-20">
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-sm font-medium" style={{ color: textColor }}>{selectedProject.name}</h2>
+                    <h2 className="text-sm font-medium text-foreground">{selectedProject.name}</h2>
                     <button
                       onClick={() => setSelectedProjectId(null)}
-                      className="p-1 transition-colors"
-                      style={{ color: mutedColor }}
+                      className="p-1 transition-colors text-muted-foreground hover:text-foreground"
                     >
                       <X className="w-4 h-4" />
                     </button>

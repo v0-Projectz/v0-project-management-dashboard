@@ -36,26 +36,18 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
-  
-  // Theme colors
-  const sidebarBg = isDark ? '#1a1a1a' : '#FFFFFF'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
-  const activeBg = isDark ? '#2a2a2a' : '#F3F4F6'
-  const hoverBg = isDark ? '#2a2a2a' : '#F9FAFB'
 
   return (
     <aside
       className={cn(
         'fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-40',
+        'bg-sidebar border-r border-sidebar-border',
         collapsed ? 'w-16' : 'w-64',
         !isDark && 'card-shadow-lg'
       )}
-      style={{ backgroundColor: sidebarBg, borderRight: `1px solid ${borderColor}` }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between h-16 px-4" style={{ borderBottom: `1px solid ${borderColor}` }}>
+      <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
           <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
             <Image 
@@ -68,8 +60,8 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-semibold text-sm" style={{ color: textColor }}>MSC-Projectz</span>
-              <span className="text-[10px] uppercase tracking-wider" style={{ color: mutedColor }}>
+              <span className="font-semibold text-sm text-sidebar-foreground">MSC-Projectz</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Command Center
               </span>
             </div>
@@ -78,8 +70,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         {!collapsed && (
           <button
             onClick={onToggle}
-            className="p-1.5 rounded-md transition-colors"
-            style={{ color: mutedColor }}
+            className="p-1.5 rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -91,10 +82,9 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <Button
           onClick={onAddProject}
           className={cn(
-            'w-full',
+            'w-full bg-primary text-primary-foreground hover:bg-primary/90',
             collapsed ? 'px-0' : 'justify-start gap-2'
           )}
-          style={{ backgroundColor: '#4ADE80', color: '#121212' }}
           size={collapsed ? 'icon' : 'default'}
         >
           <Plus className="w-4 h-4" />
@@ -114,34 +104,21 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                   onClick={() => setCurrentView(item.id)}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
-                    collapsed && 'justify-center px-0'
+                    collapsed && 'justify-center px-0',
+                    isActive 
+                      ? 'bg-sidebar-accent text-sidebar-foreground' 
+                      : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
                   )}
-                  style={{ 
-                    backgroundColor: isActive ? activeBg : 'transparent',
-                    color: isActive ? textColor : mutedColor
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.backgroundColor = hoverBg
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.backgroundColor = 'transparent'
-                  }}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   {!collapsed && <span>{item.label}</span>}
                   {!collapsed && item.id === 'dashboard' && (
-                    <span 
-                      className="ml-auto text-xs px-1.5 py-0.5 rounded"
-                      style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
-                    >
+                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                       {projects.length}
                     </span>
                   )}
                   {!collapsed && item.id === 'global-tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
-                    <span 
-                      className="ml-auto text-xs px-1.5 py-0.5 rounded"
-                      style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
-                    >
+                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                       {projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0)}
                     </span>
                   )}
@@ -153,7 +130,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       </nav>
 
       {/* Footer */}
-      <div className="p-3" style={{ borderTop: `1px solid ${borderColor}` }}>
+      <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={() => {
             localStorage.clear()
@@ -161,10 +138,10 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
             window.location.reload()
           }}
           className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm hover:bg-red-500/10',
+            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
+            'text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
             collapsed && 'justify-center px-0'
           )}
-          style={{ color: mutedColor }}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           {!collapsed && <span>Sign Out</span>}
@@ -175,8 +152,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       {collapsed && (
         <button
           onClick={onToggle}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
-          style={{ backgroundColor: sidebarBg, border: `1px solid ${borderColor}`, color: mutedColor }}
+          className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors bg-sidebar border border-sidebar-border text-muted-foreground"
         >
           <ChevronLeft className="w-3 h-3 rotate-180" />
         </button>

@@ -23,25 +23,25 @@ interface TaskDrawerProps {
   project: Project | null
 }
 
-// Status configuration
-const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgColor: string }> = {
+// Status configuration with Tailwind classes
+const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; colorClass: string; bgClass: string }> = {
   'todo': { 
     label: 'To Do', 
     icon: Circle, 
-    color: '#888888',
-    bgColor: 'rgba(136, 136, 136, 0.1)'
+    colorClass: 'text-muted-foreground',
+    bgClass: 'bg-muted/50'
   },
   'in-progress': { 
     label: 'In Progress', 
     icon: Clock, 
-    color: '#F59E0B',
-    bgColor: 'rgba(245, 158, 11, 0.1)'
+    colorClass: 'text-amber-500',
+    bgClass: 'bg-amber-500/10'
   },
   'done': { 
     label: 'Done', 
     icon: CheckCircle2, 
-    color: '#4ADE80',
-    bgColor: 'rgba(74, 222, 128, 0.1)'
+    colorClass: 'text-primary',
+    bgClass: 'bg-primary/10'
   },
 }
 
@@ -62,13 +62,6 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const liveProject = projects.find(p => p.id === project?.id) || project
   
   const isDark = appSettings.theme === 'dark'
-  
-  // Theme colors
-  const bgColor = isDark ? '#121212' : '#FFFFFF'
-  const surfaceColor = isDark ? '#1c1c1c' : '#F9FAFB'
-  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
-  const textColor = isDark ? '#f5f5f5' : '#111827'
-  const mutedColor = isDark ? '#888888' : '#6B7280'
   
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
@@ -139,26 +132,24 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       <div 
         key={task.id}
         className={cn(
-          'group flex items-center gap-3 p-3 rounded-lg transition-all',
-          isDone && 'opacity-60'
+          'group flex items-center gap-3 p-3 rounded-lg transition-all border',
+          isDone && 'opacity-60',
+          isInProgress 
+            ? 'bg-amber-500/5 border-amber-500/30' 
+            : 'bg-secondary border-border'
         )}
-        style={{ 
-          backgroundColor: isInProgress 
-            ? (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.08)')
-            : surfaceColor,
-          border: `1px solid ${isInProgress ? 'rgba(245, 158, 11, 0.3)' : borderColor}`,
-          boxShadow: isInProgress ? '0 0 12px rgba(245, 158, 11, 0.1)' : 'none'
-        }}
       >
         {/* Status Badge - Clickable */}
         <button
           onClick={() => handleCycleStatus(task.id)}
-          className="flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0"
-          style={{ backgroundColor: config.bgColor }}
+          className={cn(
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0",
+            config.bgClass
+          )}
           title={`Status: ${config.label} (click to change)`}
         >
-          <StatusIcon className="w-3.5 h-3.5" style={{ color: config.color }} />
-          <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: config.color }}>
+          <StatusIcon className={cn("w-3.5 h-3.5", config.colorClass)} />
+          <span className={cn("text-[10px] font-medium uppercase tracking-wider", config.colorClass)}>
             {config.label}
           </span>
         </button>
@@ -171,20 +162,14 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             onChange={(e) => setEditingText(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, 'edit')}
             onBlur={handleSaveEdit}
-            className="flex-1 h-8 text-sm"
-            style={{ 
-              backgroundColor: bgColor, 
-              borderColor: '#4ADE80', 
-              color: textColor 
-            }}
+            className="flex-1 h-8 text-sm bg-card border-primary text-foreground"
           />
         ) : (
           <span 
             className={cn(
               'flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
-              isDone && 'line-through'
+              isDone ? 'line-through text-muted-foreground' : 'text-foreground'
             )}
-            style={{ color: isDone ? mutedColor : textColor }}
             onClick={() => handleStartEdit(task)}
           >
             {task.title}
@@ -195,15 +180,13 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => handleStartEdit(task)}
-            className="p-1.5 rounded transition-colors"
-            style={{ color: mutedColor }}
+            className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleDeleteTask(task.id)}
-            className="p-1.5 rounded transition-colors hover:text-red-500"
-            style={{ color: mutedColor }}
+            className="p-1.5 rounded transition-colors text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -217,10 +200,9 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       {/* Backdrop */}
       <div 
         className={cn(
-          'fixed inset-0 z-50 transition-opacity duration-300',
+          'fixed inset-0 z-50 transition-opacity duration-300 bg-black/50',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
         onClick={onClose}
       />
       
@@ -228,95 +210,74 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       <div
         className={cn(
           'fixed right-0 top-0 h-screen w-full max-w-md z-50 transform transition-transform duration-300 ease-out flex flex-col',
+          'bg-background border-l border-border',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
-        style={{ 
-          backgroundColor: bgColor,
-          borderLeft: `1px solid ${borderColor}`
-        }}
       >
         {/* Header */}
-        <div 
-          className="flex items-center justify-between p-4 flex-shrink-0"
-          style={{ borderBottom: `1px solid ${borderColor}` }}
-        >
+        <div className="flex items-center justify-between p-4 flex-shrink-0 border-b border-border">
           <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-            >
-              <FolderOpen className="w-5 h-5" style={{ color: '#4ADE80' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/20">
+              <FolderOpen className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold" style={{ color: textColor }}>{liveProject.name}</h2>
-              <p className="text-xs truncate max-w-[200px]" style={{ color: mutedColor }}>
+              <h2 className="font-semibold text-foreground">{liveProject.name}</h2>
+              <p className="text-xs truncate max-w-[200px] text-muted-foreground">
                 {liveProject.localPath}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg transition-colors hover:bg-opacity-10"
-            style={{ color: mutedColor }}
+            className="p-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         
         {/* Progress Summary */}
-        <div 
-          className="p-4 flex-shrink-0"
-          style={{ borderBottom: `1px solid ${borderColor}` }}
-        >
+        <div className="p-4 flex-shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium" style={{ color: textColor }}>Task Progress</span>
-            <span className="text-sm font-semibold" style={{ color: '#4ADE80' }}>{progress}%</span>
+            <span className="text-sm font-medium text-foreground">Task Progress</span>
+            <span className="text-sm font-semibold text-primary">{progress}%</span>
           </div>
-          <div 
-            className="h-2 rounded-full overflow-hidden"
-            style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}
-          >
+          <div className="h-2 rounded-full overflow-hidden bg-muted">
             <div 
-              className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${progress}%`, backgroundColor: '#4ADE80' }}
+              className="h-full rounded-full transition-all duration-300 bg-primary"
+              style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: mutedColor }}>
+          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Circle className="w-3 h-3" style={{ color: '#888888' }} />
+              <Circle className="w-3 h-3 text-muted-foreground" />
               {todoTasks.length} To Do
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" style={{ color: '#F59E0B' }} />
+              <Clock className="w-3 h-3 text-amber-500" />
               {inProgressTasks.length} In Progress
             </span>
             <span className="flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" style={{ color: '#4ADE80' }} />
+              <CheckCircle2 className="w-3 h-3 text-primary" />
               {doneTasks.length} Done
             </span>
           </div>
         </div>
         
         {/* Add Task Input */}
-        <div className="p-4 flex-shrink-0" style={{ borderBottom: `1px solid ${borderColor}` }}>
+        <div className="p-4 flex-shrink-0 border-b border-border">
           <div className="flex gap-2">
             <Input
               placeholder="Add a new task..."
               value={newTaskText}
               onChange={(e) => setNewTaskText(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e, 'add')}
-              className="text-base"
-              style={{ 
-                backgroundColor: surfaceColor, 
-                borderColor, 
-                color: textColor 
-              }}
+              className="text-base bg-secondary border-border text-foreground placeholder:text-muted-foreground"
             />
             <Button 
               onClick={handleAddTask}
               disabled={!newTaskText.trim()}
               size="icon"
-              style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -328,8 +289,8 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* To Do Tasks */}
           {todoTasks.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: mutedColor }}>
-                <Circle className="w-3 h-3" style={{ color: '#888888' }} />
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-muted-foreground">
+                <Circle className="w-3 h-3" />
                 To Do ({todoTasks.length})
               </h3>
               <div className="space-y-2">
@@ -341,7 +302,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* In Progress Tasks */}
           {inProgressTasks.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: '#F59E0B' }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-amber-500">
                 <Clock className="w-3 h-3" />
                 In Progress ({inProgressTasks.length})
               </h3>
@@ -354,7 +315,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* Done Tasks */}
           {doneTasks.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: '#4ADE80' }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="w-3 h-3" />
                 Done ({doneTasks.length})
               </h3>
@@ -367,14 +328,11 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* Empty State */}
           {todoTasks.length === 0 && inProgressTasks.length === 0 && doneTasks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div 
-                className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: surfaceColor }}
-              >
-                <CheckCircle2 className="w-8 h-8" style={{ color: '#4ADE80' }} />
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 bg-secondary">
+                <CheckCircle2 className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-medium mb-1" style={{ color: textColor }}>No Tasks Yet</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>
+              <h3 className="font-medium mb-1 text-foreground">No Tasks Yet</h3>
+              <p className="text-sm text-center max-w-xs text-muted-foreground">
                 Add your first task using the input above
               </p>
             </div>
