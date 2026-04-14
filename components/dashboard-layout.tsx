@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Sun, Moon, LayoutGrid, List } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -23,21 +23,35 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
 
   const isDark = appSettings.theme === 'dark'
+  
+  // Apply theme class to document
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.remove('light')
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.add('light')
+    }
+  }, [isDark])
 
   const getViewTitle = () => {
     switch (currentView) {
       case 'dashboard': return 'Dashboard'
+      case 'global-tasks': return 'Tasks'
       case 'settings': return 'Settings'
       case 'help': return 'Help & Documentation'
       default: return 'Dashboard'
     }
   }
 
-  const bgColor = isDark ? '#121212' : '#f5f5f5'
-  const surfaceColor = isDark ? '#1c1c1c' : '#ffffff'
-  const borderColor = isDark ? '#2a2a2a' : '#e0e0e0'
-  const textColor = isDark ? '#f5f5f5' : '#121212'
-  const mutedColor = isDark ? '#888888' : '#666666'
+  // True Light Mode Colors
+  const bgColor = isDark ? '#121212' : '#F9FAFB'
+  const surfaceColor = isDark ? '#1c1c1c' : '#FFFFFF'
+  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
+  const textColor = isDark ? '#f5f5f5' : '#111827'
+  const mutedColor = isDark ? '#888888' : '#6B7280'
+  const headerBg = isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)'
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
@@ -58,7 +72,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         <header 
           className="h-16 sticky top-0 z-30 flex items-center justify-between px-6"
           style={{ 
-            backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.8)', 
+            backgroundColor: headerBg, 
             backdropFilter: 'blur(8px)',
             borderBottom: `1px solid ${borderColor}` 
           }}
@@ -66,7 +80,13 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
           <div className="flex items-center gap-4">
             {/* MSC Icon and User Info */}
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0" style={{ backgroundColor: surfaceColor, border: `1px solid ${borderColor}` }}>
+              <div 
+                className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0" 
+                style={{ 
+                  backgroundColor: surfaceColor, 
+                  border: `1px solid ${borderColor}` 
+                }}
+              >
                 <Image 
                   src="/msc-icon.png" 
                   alt="MSC" 
@@ -95,7 +115,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
             {/* View Toggle (Bento Grid / List) */}
             {currentView === 'dashboard' && (
               <div 
-                className="flex items-center p-1 rounded-lg"
+                className={cn('flex items-center p-1 rounded-lg', !isDark && 'card-shadow')}
                 style={{ backgroundColor: surfaceColor, border: `1px solid ${borderColor}` }}
               >
                 <button
@@ -132,7 +152,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2"
+                  className={cn('pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[#4ADE80]', !isDark && 'card-shadow')}
                   style={{ 
                     backgroundColor: surfaceColor, 
                     border: `1px solid ${borderColor}`,
@@ -145,7 +165,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg transition-colors"
+              className={cn('p-2 rounded-lg transition-colors', !isDark && 'card-shadow')}
               style={{ 
                 backgroundColor: surfaceColor, 
                 border: `1px solid ${borderColor}`,

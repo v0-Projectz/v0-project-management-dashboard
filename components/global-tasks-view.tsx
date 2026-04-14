@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { 
   Inbox, 
   Archive, 
@@ -8,12 +8,15 @@ import {
   Check, 
   FolderOpen,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Pencil,
+  Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import type { Task } from '@/lib/types'
 
 type TabType = 'inbox' | 'archived'
 
@@ -21,15 +24,37 @@ export function GlobalTasksView() {
   const [activeTab, setActiveTab] = useState<TabType>('inbox')
   const [quickAddText, setQuickAddText] = useState('')
   const [expandedProjects, setExpandedProjects] = useState<string[]>([])
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editingText, setEditingText] = useState('')
+  const editInputRef = useRef<HTMLInputElement>(null)
   
   const projects = useAppStore((s) => s.projects)
   const toggleTask = useAppStore((s) => s.toggleTask)
   const archiveTask = useAppStore((s) => s.archiveTask)
+  const deleteTask = useAppStore((s) => s.deleteTask)
   const addTask = useAppStore((s) => s.addTask)
+  const updateProject = useAppStore((s) => s.updateProject)
+  const appSettings = useAppStore((s) => s.appSettings)
+  
+  const isDark = appSettings.theme === 'dark'
+  
+  // Theme colors
+  const textColor = isDark ? '#f5f5f5' : '#111827'
+  const mutedColor = isDark ? '#888888' : '#6B7280'
+  const cardBg = isDark ? '#1c1c1c' : '#FFFFFF'
+  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
+  const surfaceBg = isDark ? '#252525' : '#F9FAFB'
+  const hoverBg = isDark ? '#252525' : '#F3F4F6'
+  
+  useEffect(() => {
+    if (editingTaskId && editInputRef.current) {
+      editInputRef.current.focus()
+    }
+  }, [editingTaskId])
   
   // Get all incomplete tasks grouped by project
   const inboxTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; tasks: { id: string; title: string; completed: boolean; createdAt: Date }[] }> = {}
+    const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
     
     projects.forEach((project) => {
       const incompleteTasks = project.tasks.filter((t) => !t.completed && !t.archived)
@@ -47,7 +72,7 @@ export function GlobalTasksView() {
   
   // Get all archived/completed tasks grouped by project
   const archivedTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; tasks: { id: string; title: string; completed: boolean; createdAt: Date }[] }> = {}
+    const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
     
     projects.forEach((project) => {
       const completedTasks = project.tasks.filter((t) => t.completed || t.archived)
@@ -73,8 +98,6 @@ export function GlobalTasksView() {
   
   const handleQuickAdd = () => {
     if (!quickAddText.trim() || projects.length === 0) return
-    
-    // Add to first project by default
     addTask(projects[0].id, quickAddText.trim())
     setQuickAddText('')
   }
@@ -87,6 +110,29 @@ export function GlobalTasksView() {
     }, 500)
   }
   
+  const handleStartEdit = (task: Task) => {
+    setEditingTaskId(task.id)
+    setEditingText(task.title)
+  }
+  
+  const handleSaveEdit = (projectId: string) => {
+    if (!editingTaskId || !editingText.trim()) {
+      setEditingTaskId(null)
+      return
+    }
+    
+    const project = projects.find(p => p.id === projectId)
+    if (!project) return
+    
+    const updatedTasks = project.tasks.map(t => 
+      t.id === editingTaskId ? { ...t, title: editingText.trim() } : t
+    )
+    
+    updateProject(projectId, { tasks: updatedTasks })
+    setEditingTaskId(null)
+    setEditingText('')
+  }
+  
   const inboxCount = Object.values(inboxTasks).reduce((sum, group) => sum + group.tasks.length, 0)
   const archivedCount = Object.values(archivedTasks).reduce((sum, group) => sum + group.tasks.length, 0)
 
@@ -94,27 +140,25 @@ export function GlobalTasksView() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold mb-1" style={{ color: '#f5f5f5' }}>
-          Global Tasks
+        <h1 className="text-2xl font-semibold mb-1" style={{ color: textColor }}>
+          Tasks
         </h1>
-        <p className="text-sm" style={{ color: '#888888' }}>
+        <p className="text-sm" style={{ color: mutedColor }}>
           Command center for all project tasks
         </p>
       </div>
 
       {/* Tabs */}
       <div 
-        className="flex gap-1 p-1 rounded-lg w-fit"
-        style={{ backgroundColor: '#1c1c1c' }}
+        className={cn('flex gap-1 p-1 rounded-lg w-fit', !isDark && 'card-shadow')}
+        style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
       >
         <button
           onClick={() => setActiveTab('inbox')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors'
-          )}
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
           style={{ 
             backgroundColor: activeTab === 'inbox' ? '#4ADE80' : 'transparent',
-            color: activeTab === 'inbox' ? '#121212' : '#888888'
+            color: activeTab === 'inbox' ? '#121212' : mutedColor
           }}
         >
           <Inbox className="w-4 h-4" />
@@ -133,12 +177,10 @@ export function GlobalTasksView() {
         </button>
         <button
           onClick={() => setActiveTab('archived')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors'
-          )}
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
           style={{ 
             backgroundColor: activeTab === 'archived' ? '#4ADE80' : 'transparent',
-            color: activeTab === 'archived' ? '#121212' : '#888888'
+            color: activeTab === 'archived' ? '#121212' : mutedColor
           }}
         >
           <Archive className="w-4 h-4" />
@@ -147,8 +189,8 @@ export function GlobalTasksView() {
             <span 
               className="px-1.5 py-0.5 rounded text-xs"
               style={{ 
-                backgroundColor: activeTab === 'archived' ? 'rgba(18,18,18,0.2)' : '#2a2a2a',
-                color: activeTab === 'archived' ? '#121212' : '#888888'
+                backgroundColor: activeTab === 'archived' ? 'rgba(18,18,18,0.2)' : (isDark ? '#2a2a2a' : '#E5E7EB'),
+                color: activeTab === 'archived' ? '#121212' : mutedColor
               }}
             >
               {archivedCount}
@@ -160,8 +202,8 @@ export function GlobalTasksView() {
       {/* Quick Add (Inbox only) */}
       {activeTab === 'inbox' && (
         <div 
-          className="flex gap-2 p-4 rounded-xl"
-          style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+          className={cn('flex gap-2 p-4 rounded-xl', !isDark && 'card-shadow')}
+          style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
         >
           <Input
             placeholder={projects.length > 0 ? `Quick add task to ${projects[0].name}...` : 'Add a project first...'}
@@ -169,7 +211,7 @@ export function GlobalTasksView() {
             onChange={(e) => setQuickAddText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleQuickAdd()}
             disabled={projects.length === 0}
-            style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+            style={{ backgroundColor: surfaceBg, borderColor, color: textColor }}
           />
           <Button 
             onClick={handleQuickAdd}
@@ -188,17 +230,17 @@ export function GlobalTasksView() {
         {activeTab === 'inbox' && (
           Object.keys(inboxTasks).length === 0 ? (
             <div 
-              className="flex flex-col items-center justify-center py-16 rounded-xl"
-              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+              className={cn('flex flex-col items-center justify-center py-16 rounded-xl', !isDark && 'card-shadow')}
+              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
             >
               <div 
                 className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: '#252525' }}
+                style={{ backgroundColor: surfaceBg }}
               >
                 <Inbox className="w-8 h-8" style={{ color: '#4ADE80' }} />
               </div>
-              <h3 className="font-medium mb-1" style={{ color: '#f5f5f5' }}>Inbox Zero</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: '#888888' }}>
+              <h3 className="font-medium mb-1" style={{ color: textColor }}>Inbox Zero</h3>
+              <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>
                 No pending tasks. Add tasks from project cards or use Quick Add above.
               </p>
             </div>
@@ -206,12 +248,15 @@ export function GlobalTasksView() {
             Object.values(inboxTasks).map((group) => (
               <div 
                 key={group.projectId}
-                className="rounded-xl overflow-hidden"
-                style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+                className={cn('rounded-xl overflow-hidden', !isDark && 'card-shadow')}
+                style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
               >
                 <button
                   onClick={() => toggleProjectExpanded(group.projectId)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-[#252525] transition-colors"
+                  className="w-full flex items-center justify-between p-4 transition-colors"
+                  style={{ backgroundColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-3">
                     <div 
@@ -220,42 +265,78 @@ export function GlobalTasksView() {
                     >
                       <FolderOpen className="w-4 h-4" style={{ color: '#4ADE80' }} />
                     </div>
-                    <span className="font-medium" style={{ color: '#f5f5f5' }}>{group.projectName}</span>
+                    <span className="font-medium" style={{ color: textColor }}>{group.projectName}</span>
                     <span 
                       className="text-xs px-2 py-0.5 rounded"
-                      style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
+                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB', color: mutedColor }}
                     >
                       {group.tasks.length} task{group.tasks.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
-                    <ChevronDown className="w-4 h-4" style={{ color: '#888888' }} />
+                    <ChevronDown className="w-4 h-4" style={{ color: mutedColor }} />
                   ) : (
-                    <ChevronRight className="w-4 h-4" style={{ color: '#888888' }} />
+                    <ChevronRight className="w-4 h-4" style={{ color: mutedColor }} />
                   )}
                 </button>
                 
                 {expandedProjects.includes(group.projectId) && (
-                  <div style={{ borderTop: '1px solid #2a2a2a' }}>
+                  <div style={{ borderTop: `1px solid ${borderColor}` }}>
                     {group.tasks.map((task) => (
                       <div 
                         key={task.id}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#252525] transition-all"
-                        style={{ borderBottom: '1px solid #2a2a2a' }}
+                        className="group flex items-center gap-3 px-4 py-3 transition-all"
+                        style={{ borderBottom: `1px solid ${borderColor}` }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         <button
                           onClick={() => handleTaskToggle(group.projectId, task.id)}
-                          className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors hover:border-[#4ADE80]"
-                          style={{ borderColor: '#2a2a2a' }}
+                          className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0"
+                          style={{ borderColor: '#4ADE80' }}
                         >
                           {task.completed && <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />}
                         </button>
-                        <span 
-                          className={cn('flex-1', task.completed && 'line-through')}
-                          style={{ color: task.completed ? '#888888' : '#f5f5f5' }}
-                        >
-                          {task.title}
-                        </span>
+                        
+                        {editingTaskId === task.id ? (
+                          <Input
+                            ref={editInputRef}
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveEdit(group.projectId)
+                              if (e.key === 'Escape') setEditingTaskId(null)
+                            }}
+                            onBlur={() => handleSaveEdit(group.projectId)}
+                            className="flex-1 h-8 text-sm"
+                            style={{ backgroundColor: cardBg, borderColor: '#4ADE80', color: textColor }}
+                          />
+                        ) : (
+                          <span 
+                            className={cn('flex-1 cursor-pointer', task.completed && 'line-through')}
+                            style={{ color: task.completed ? mutedColor : textColor }}
+                            onClick={() => handleStartEdit(task)}
+                          >
+                            {task.title}
+                          </span>
+                        )}
+                        
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleStartEdit(task)}
+                            className="p-1.5 rounded transition-colors"
+                            style={{ color: mutedColor }}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => deleteTask(group.projectId, task.id)}
+                            className="p-1.5 rounded transition-colors hover:text-red-500"
+                            style={{ color: mutedColor }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -268,17 +349,17 @@ export function GlobalTasksView() {
         {activeTab === 'archived' && (
           Object.keys(archivedTasks).length === 0 ? (
             <div 
-              className="flex flex-col items-center justify-center py-16 rounded-xl"
-              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+              className={cn('flex flex-col items-center justify-center py-16 rounded-xl', !isDark && 'card-shadow')}
+              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
             >
               <div 
                 className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: '#252525' }}
+                style={{ backgroundColor: surfaceBg }}
               >
-                <Archive className="w-8 h-8" style={{ color: '#888888' }} />
+                <Archive className="w-8 h-8" style={{ color: mutedColor }} />
               </div>
-              <h3 className="font-medium mb-1" style={{ color: '#f5f5f5' }}>No Archived Tasks</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: '#888888' }}>
+              <h3 className="font-medium mb-1" style={{ color: textColor }}>No Archived Tasks</h3>
+              <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>
                 Completed tasks will appear here.
               </p>
             </div>
@@ -286,52 +367,61 @@ export function GlobalTasksView() {
             Object.values(archivedTasks).map((group) => (
               <div 
                 key={group.projectId}
-                className="rounded-xl overflow-hidden"
-                style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+                className={cn('rounded-xl overflow-hidden', !isDark && 'card-shadow')}
+                style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
               >
                 <button
                   onClick={() => toggleProjectExpanded(group.projectId)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-[#252525] transition-colors"
+                  className="w-full flex items-center justify-between p-4 transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-8 h-8 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: '#2a2a2a' }}
+                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}
                     >
-                      <FolderOpen className="w-4 h-4" style={{ color: '#888888' }} />
+                      <FolderOpen className="w-4 h-4" style={{ color: mutedColor }} />
                     </div>
-                    <span className="font-medium" style={{ color: '#888888' }}>{group.projectName}</span>
+                    <span className="font-medium" style={{ color: mutedColor }}>{group.projectName}</span>
                     <span 
                       className="text-xs px-2 py-0.5 rounded"
-                      style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
+                      style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB', color: mutedColor }}
                     >
                       {group.tasks.length} archived
                     </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
-                    <ChevronDown className="w-4 h-4" style={{ color: '#888888' }} />
+                    <ChevronDown className="w-4 h-4" style={{ color: mutedColor }} />
                   ) : (
-                    <ChevronRight className="w-4 h-4" style={{ color: '#888888' }} />
+                    <ChevronRight className="w-4 h-4" style={{ color: mutedColor }} />
                   )}
                 </button>
                 
                 {expandedProjects.includes(group.projectId) && (
-                  <div style={{ borderTop: '1px solid #2a2a2a' }}>
+                  <div style={{ borderTop: `1px solid ${borderColor}` }}>
                     {group.tasks.map((task) => (
                       <div 
                         key={task.id}
-                        className="flex items-center gap-3 px-4 py-3"
-                        style={{ borderBottom: '1px solid #2a2a2a' }}
+                        className="group flex items-center gap-3 px-4 py-3"
+                        style={{ borderBottom: `1px solid ${borderColor}` }}
                       >
                         <div 
-                          className="w-5 h-5 rounded flex items-center justify-center"
+                          className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
                         >
                           <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />
                         </div>
-                        <span className="flex-1 line-through" style={{ color: '#888888' }}>
+                        <span className="flex-1 line-through" style={{ color: mutedColor }}>
                           {task.title}
                         </span>
+                        <button
+                          onClick={() => deleteTask(group.projectId, task.id)}
+                          className="p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100 hover:text-red-500"
+                          style={{ color: mutedColor }}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     ))}
                   </div>

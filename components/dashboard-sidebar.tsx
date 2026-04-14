@@ -23,7 +23,7 @@ interface SidebarProps {
 
 const navItems: { id: ViewType; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'global-tasks', label: 'Global Tasks', icon: ClipboardList },
+  { id: 'global-tasks', label: 'Tasks', icon: ClipboardList },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ]
@@ -33,17 +33,29 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
   const projects = useAppStore((s) => s.projects)
   const currentView = useAppStore((s) => s.currentView)
   const setCurrentView = useAppStore((s) => s.setCurrentView)
+  const appSettings = useAppStore((s) => s.appSettings)
+  
+  const isDark = appSettings.theme === 'dark'
+  
+  // Theme colors
+  const sidebarBg = isDark ? '#1a1a1a' : '#FFFFFF'
+  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
+  const textColor = isDark ? '#f5f5f5' : '#111827'
+  const mutedColor = isDark ? '#888888' : '#6B7280'
+  const activeBg = isDark ? '#2a2a2a' : '#F3F4F6'
+  const hoverBg = isDark ? '#2a2a2a' : '#F9FAFB'
 
   return (
     <aside
       className={cn(
         'fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-40',
-        collapsed ? 'w-16' : 'w-64'
+        collapsed ? 'w-16' : 'w-64',
+        !isDark && 'card-shadow-lg'
       )}
-      style={{ backgroundColor: '#1a1a1a', borderRight: '1px solid #2a2a2a' }}
+      style={{ backgroundColor: sidebarBg, borderRight: `1px solid ${borderColor}` }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between h-16 px-4" style={{ borderBottom: '1px solid #2a2a2a' }}>
+      <div className="flex items-center justify-between h-16 px-4" style={{ borderBottom: `1px solid ${borderColor}` }}>
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
           <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
             <Image 
@@ -56,8 +68,8 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-semibold text-sm" style={{ color: '#f5f5f5' }}>MSC-Projectz</span>
-              <span className="text-[10px] uppercase tracking-wider" style={{ color: '#888888' }}>
+              <span className="font-semibold text-sm" style={{ color: textColor }}>MSC-Projectz</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: mutedColor }}>
                 Command Center
               </span>
             </div>
@@ -66,8 +78,8 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         {!collapsed && (
           <button
             onClick={onToggle}
-            className="p-1.5 rounded-md transition-colors hover:bg-[#2a2a2a]"
-            style={{ color: '#888888' }}
+            className="p-1.5 rounded-md transition-colors"
+            style={{ color: mutedColor }}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -105,8 +117,14 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                     collapsed && 'justify-center px-0'
                   )}
                   style={{ 
-                    backgroundColor: isActive ? '#2a2a2a' : 'transparent',
-                    color: isActive ? '#f5f5f5' : '#888888'
+                    backgroundColor: isActive ? activeBg : 'transparent',
+                    color: isActive ? textColor : mutedColor
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = hoverBg
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = 'transparent'
                   }}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
@@ -135,20 +153,18 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       </nav>
 
       {/* Footer */}
-      <div className="p-3" style={{ borderTop: '1px solid #2a2a2a' }}>
+      <div className="p-3" style={{ borderTop: `1px solid ${borderColor}` }}>
         <button
           onClick={() => {
-            // Clear all localStorage keys before logout
             localStorage.clear()
             logout()
-            // Force page reload to reset all state
             window.location.reload()
           }}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm hover:bg-red-500/10',
             collapsed && 'justify-center px-0'
           )}
-          style={{ color: '#888888' }}
+          style={{ color: mutedColor }}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           {!collapsed && <span>Sign Out</span>}
@@ -160,7 +176,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <button
           onClick={onToggle}
           className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
-          style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a', color: '#888888' }}
+          style={{ backgroundColor: sidebarBg, border: `1px solid ${borderColor}`, color: mutedColor }}
         >
           <ChevronLeft className="w-3 h-3 rotate-180" />
         </button>

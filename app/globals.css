@@ -5,13 +5,13 @@
 
 /* =====================================================
    MSC-Projectz Vader Protocol Theme
-   Force dark mode by default - no light theme
+   True Dark/Light Mode Support
    ===================================================== */
 
 :root {
   color-scheme: dark;
   
-  /* Core colors */
+  /* Core colors - Dark Mode (Default) */
   --background: #121212;
   --foreground: #f5f5f5;
   --card: #1c1c1c;
@@ -51,38 +51,75 @@
   --sidebar-ring: #4ADE80;
 }
 
+/* =====================================================
+   TRUE LIGHT MODE
+   ===================================================== */
+.light {
+  color-scheme: light;
+  
+  --background: #F9FAFB;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  --primary: #4ADE80;
+  --primary-foreground: #111827;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #111827;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --accent: #4ADE80;
+  --accent-foreground: #111827;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #FFFFFF;
+  --ring: #4ADE80;
+  
+  /* Light mode sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #4ADE80;
+  --sidebar-primary-foreground: #111827;
+  --sidebar-accent: #F3F4F6;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #4ADE80;
+}
+
 /* Tailwind v4 Theme - Direct hex values */
 @theme inline {
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
   
-  --color-background: #121212;
-  --color-foreground: #f5f5f5;
-  --color-card: #1c1c1c;
-  --color-card-foreground: #f5f5f5;
-  --color-popover: #1c1c1c;
-  --color-popover-foreground: #f5f5f5;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: #4ADE80;
-  --color-primary-foreground: #121212;
-  --color-secondary: #2a2a2a;
-  --color-secondary-foreground: #f5f5f5;
-  --color-muted: #2a2a2a;
-  --color-muted-foreground: #888888;
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-accent: #4ADE80;
-  --color-accent-foreground: #121212;
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: #EF4444;
-  --color-destructive-foreground: #f5f5f5;
-  --color-border: #2a2a2a;
-  --color-input: #1c1c1c;
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
   --color-ring: #4ADE80;
   
-  --color-sidebar: #1a1a1a;
-  --color-sidebar-foreground: #f5f5f5;
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: #4ADE80;
-  --color-sidebar-primary-foreground: #121212;
-  --color-sidebar-accent: #2a2a2a;
-  --color-sidebar-accent-foreground: #f5f5f5;
-  --color-sidebar-border: #2a2a2a;
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: #4ADE80;
   
   --radius-sm: calc(0.5rem - 4px);
@@ -98,58 +135,63 @@
   
   html,
   body {
-    background-color: #121212 !important;
-    color: #f5f5f5 !important;
-  }
-  
-  html {
-    color-scheme: dark;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
-/* Force dark scrollbars */
+/* Dark mode scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #121212;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: var(--border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a3a;
+  background: var(--muted-foreground);
 }
 
-/* Force dark form elements */
+/* Form elements inherit theme */
 input,
 textarea,
 select {
-  background-color: #1c1c1c !important;
-  color: #f5f5f5 !important;
-  border-color: #2a2a2a !important;
+  background-color: var(--input);
+  color: var(--foreground);
+  border-color: var(--border);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #888888 !important;
+  color: var(--muted-foreground);
 }
 
-/* Force dialog/popover dark backgrounds */
+/* Dialog/Popover styling */
 [role="dialog"],
 [data-radix-popper-content-wrapper] > div,
 [data-radix-dialog-content] {
-  background-color: #1c1c1c !important;
-  color: #f5f5f5 !important;
-  border-color: #2a2a2a !important;
+  background-color: var(--card);
+  color: var(--foreground);
+  border-color: var(--border);
 }
 
 /* Dialog overlay */
 [data-radix-dialog-overlay] {
-  background-color: rgba(0, 0, 0, 0.8) !important;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Light mode specific shadows for cards */
+.light .card-shadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.light .card-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

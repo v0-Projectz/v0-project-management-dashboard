@@ -12,13 +12,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/lib/store'
 
 /**
  * Tauri 2.0 Hook Placeholder
  * Replace this function with Rust shell commands when exporting to Tauri desktop.
  */
 const handleOpenPath = (path: string, action: 'cursor' | 'explorer' | 'terminal' = 'explorer') => {
-  console.log('[Tauri Hook Ready]', action, path)
   switch (action) {
     case 'cursor':
       window.open(`vscode://file/${path}`, '_blank')
@@ -38,9 +38,22 @@ interface ProjectCardProps {
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
+  onOpenTaskDrawer?: () => void
 }
 
-export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }: ProjectCardProps) {
+export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, onOpenTaskDrawer }: ProjectCardProps) {
+  const appSettings = useAppStore((s) => s.appSettings)
+  const isDark = appSettings.theme === 'dark'
+  
+  // Theme colors
+  const cardBg = isDark ? '#1c1c1c' : '#FFFFFF'
+  const borderColor = isDark ? '#2a2a2a' : '#E5E7EB'
+  const textColor = isDark ? '#f5f5f5' : '#111827'
+  const mutedColor = isDark ? '#888888' : '#6B7280'
+  const surfaceBg = isDark ? '#252525' : '#F9FAFB'
+  const overlayBg = isDark ? 'rgba(18, 18, 18, 0.9)' : 'rgba(255, 255, 255, 0.95)'
+  const buttonBg = isDark ? '#2a2a2a' : '#F3F4F6'
+  
   const handleOpenInCursor = () => {
     handleOpenPath(project.localPath, 'cursor')
   }
@@ -62,15 +75,18 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
 
   return (
     <div
-      className="group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer"
+      className={cn(
+        'group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer',
+        !isDark && 'card-shadow hover:card-shadow-lg'
+      )}
       style={{ 
-        backgroundColor: '#1c1c1c', 
-        border: '1px solid #2a2a2a' 
+        backgroundColor: cardBg, 
+        border: `1px solid ${borderColor}` 
       }}
       onClick={onSelect}
     >
       {/* Thumbnail Area */}
-      <div className="aspect-video relative overflow-hidden" style={{ backgroundColor: '#252525' }}>
+      <div className="aspect-video relative overflow-hidden" style={{ backgroundColor: surfaceBg }}>
         {project.thumbnail ? (
           <img
             src={project.thumbnail}
@@ -81,9 +97,9 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           <div className="w-full h-full flex items-center justify-center">
             <div 
               className="w-16 h-16 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: '#2a2a2a' }}
+              style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}
             >
-              <MonitorPlay className="w-8 h-8" style={{ color: '#888888' }} />
+              <MonitorPlay className="w-8 h-8" style={{ color: mutedColor }} />
             </div>
           </div>
         )}
@@ -97,8 +113,8 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
               : ''
           )}
           style={{
-            backgroundColor: project.status === 'live' ? '#4ADE80' : '#2a2a2a',
-            color: project.status === 'live' ? '#121212' : '#888888'
+            backgroundColor: project.status === 'live' ? '#4ADE80' : (isDark ? '#2a2a2a' : '#E5E7EB'),
+            color: project.status === 'live' ? '#121212' : mutedColor
           }}
         >
           {project.status}
@@ -110,10 +126,10 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
             e.stopPropagation()
             onEdit()
           }}
-          className="absolute top-3 left-3 w-8 h-8 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all hover:bg-[#1c1c1c]"
+          className="absolute top-3 left-3 w-8 h-8 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all"
           style={{ 
-            backgroundColor: 'rgba(18, 18, 18, 0.8)',
-            color: '#888888'
+            backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+            color: mutedColor
           }}
         >
           <Settings className="w-4 h-4" />
@@ -122,12 +138,12 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
         {/* Overlay on hover */}
         <div 
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
-          style={{ backgroundColor: 'rgba(18, 18, 18, 0.9)' }}
+          style={{ backgroundColor: overlayBg }}
         >
           <Button
             size="sm"
             className="h-8 text-xs gap-1.5"
-            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
+            style={{ backgroundColor: buttonBg, color: textColor }}
             onClick={(e) => {
               e.stopPropagation()
               handleOpenInCursor()
@@ -139,7 +155,7 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           <Button
             size="sm"
             className="h-8 text-xs gap-1.5"
-            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
+            style={{ backgroundColor: buttonBg, color: textColor }}
             onClick={(e) => {
               e.stopPropagation()
               handleOpenInExplorer()
@@ -169,29 +185,29 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium truncate" style={{ color: '#f5f5f5' }}>{project.name}</h3>
-            <p className="text-xs truncate mt-0.5" style={{ color: '#888888' }}>
+            <h3 className="font-medium truncate" style={{ color: textColor }}>{project.name}</h3>
+            <p className="text-xs truncate mt-0.5" style={{ color: mutedColor }}>
               {project.localPath}
             </p>
           </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" style={{ color: '#888888' }}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" style={{ color: mutedColor }}>
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
               className="w-48"
-              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+              style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}
             >
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation()
                   onEdit()
                 }}
-                style={{ color: '#f5f5f5' }}
+                style={{ color: textColor }}
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Edit Project
@@ -201,18 +217,18 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
                   e.stopPropagation()
                   onOpenVault()
                 }}
-                style={{ color: '#f5f5f5' }}
+                style={{ color: textColor }}
               >
                 <Key className="w-4 h-4 mr-2" />
                 Open Vault
               </DropdownMenuItem>
-              <DropdownMenuSeparator style={{ backgroundColor: '#2a2a2a' }} />
+              <DropdownMenuSeparator style={{ backgroundColor: borderColor }} />
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation()
                   handleOpenInCursor()
                 }}
-                style={{ color: '#f5f5f5' }}
+                style={{ color: textColor }}
               >
                 <MonitorPlay className="w-4 h-4 mr-2" />
                 Open in Cursor
@@ -222,7 +238,7 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
                   e.stopPropagation()
                   handleOpenInExplorer()
                 }}
-                style={{ color: '#f5f5f5' }}
+                style={{ color: textColor }}
               >
                 <FolderOpen className="w-4 h-4 mr-2" />
                 Copy Path
@@ -233,13 +249,13 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
                     e.stopPropagation()
                     handleOpenLiveUrl()
                   }}
-                  style={{ color: '#f5f5f5' }}
+                  style={{ color: textColor }}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Open Live URL
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator style={{ backgroundColor: '#2a2a2a' }} />
+              <DropdownMenuSeparator style={{ backgroundColor: borderColor }} />
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
@@ -257,12 +273,12 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
         {/* Progress Bar */}
         <div className="mt-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs" style={{ color: '#888888' }}>Progress</span>
+            <span className="text-xs" style={{ color: mutedColor }}>Progress</span>
             <span className="text-xs font-medium" style={{ color: '#4ADE80' }}>{calculatedProgress}%</span>
           </div>
           <div 
             className="h-1.5 rounded-full overflow-hidden"
-            style={{ backgroundColor: '#2a2a2a' }}
+            style={{ backgroundColor: isDark ? '#2a2a2a' : '#E5E7EB' }}
           >
             <div 
               className="h-full rounded-full transition-all duration-300"
@@ -275,39 +291,46 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #2a2a2a' }}>
+        <div className="flex items-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${borderColor}` }}>
           <div className="flex items-center gap-1.5">
-            <Key className="w-3.5 h-3.5" style={{ color: '#888888' }} />
-            <span className="text-xs" style={{ color: '#888888' }}>
+            <Key className="w-3.5 h-3.5" style={{ color: mutedColor }} />
+            <span className="text-xs" style={{ color: mutedColor }}>
               {project.credentials.length} credentials
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            {/* Progress Circle */}
-            <svg className="w-4 h-4 -rotate-90" viewBox="0 0 16 16">
+          {/* Clickable Progress Circle - Opens Task Drawer */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpenTaskDrawer?.()
+            }}
+            className="flex items-center gap-1.5 transition-transform hover:scale-110"
+            title="Open task drawer"
+          >
+            <svg className="w-5 h-5 -rotate-90" viewBox="0 0 20 20">
               <circle
-                cx="8"
-                cy="8"
-                r="6"
+                cx="10"
+                cy="10"
+                r="8"
                 fill="none"
-                stroke="#2a2a2a"
+                stroke={isDark ? '#2a2a2a' : '#E5E7EB'}
                 strokeWidth="2"
               />
               <circle
-                cx="8"
-                cy="8"
-                r="6"
+                cx="10"
+                cy="10"
+                r="8"
                 fill="none"
                 stroke="#4ADE80"
                 strokeWidth="2"
-                strokeDasharray={`${(completedTasks / Math.max(totalTasks, 1)) * 37.7} 37.7`}
+                strokeDasharray={`${(completedTasks / Math.max(totalTasks, 1)) * 50.3} 50.3`}
                 strokeLinecap="round"
               />
             </svg>
-            <span className="text-xs" style={{ color: '#888888' }}>
+            <span className="text-xs" style={{ color: mutedColor }}>
               {completedTasks}/{totalTasks} tasks
             </span>
-          </div>
+          </button>
         </div>
       </div>
     </div>
