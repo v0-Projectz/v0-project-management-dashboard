@@ -38,11 +38,15 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
 
   return (
     <div
-      className="group relative bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 transition-all duration-200 cursor-pointer"
+      className="group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer"
+      style={{ 
+        backgroundColor: '#1c1c1c', 
+        border: '1px solid #2a2a2a' 
+      }}
       onClick={onSelect}
     >
       {/* Thumbnail Area */}
-      <div className="aspect-video bg-muted/50 relative overflow-hidden">
+      <div className="aspect-video relative overflow-hidden" style={{ backgroundColor: '#252525' }}>
         {project.thumbnail ? (
           <img
             src={project.thumbnail}
@@ -51,8 +55,11 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="w-16 h-16 rounded-xl bg-border/50 flex items-center justify-center">
-              <MonitorPlay className="w-8 h-8 text-muted-foreground" />
+            <div 
+              className="w-16 h-16 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: '#2a2a2a' }}
+            >
+              <MonitorPlay className="w-8 h-8" style={{ color: '#888888' }} />
             </div>
           </div>
         )}
@@ -60,11 +67,15 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
         {/* Status Badge */}
         <Badge
           className={cn(
-            'absolute top-3 right-3 uppercase text-[10px] font-semibold tracking-wider',
+            'absolute top-3 right-3 uppercase text-[10px] font-semibold tracking-wider border-0',
             project.status === 'live'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
+              ? 'text-[#121212]'
+              : ''
           )}
+          style={{
+            backgroundColor: project.status === 'live' ? '#4ADE80' : '#2a2a2a',
+            color: project.status === 'live' ? '#121212' : '#888888'
+          }}
         >
           {project.status}
         </Badge>
@@ -75,17 +86,24 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
             e.stopPropagation()
             onEdit()
           }}
-          className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-background/80 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all"
+          className="absolute top-3 left-3 w-8 h-8 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all hover:bg-[#1c1c1c]"
+          style={{ 
+            backgroundColor: 'rgba(18, 18, 18, 0.8)',
+            color: '#888888'
+          }}
         >
           <Settings className="w-4 h-4" />
         </button>
 
         {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+          style={{ backgroundColor: 'rgba(18, 18, 18, 0.9)' }}
+        >
           <Button
             size="sm"
-            variant="secondary"
             className="h-8 text-xs gap-1.5"
+            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
             onClick={(e) => {
               e.stopPropagation()
               handleOpenInCursor()
@@ -96,8 +114,8 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           </Button>
           <Button
             size="sm"
-            variant="secondary"
             className="h-8 text-xs gap-1.5"
+            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
             onClick={(e) => {
               e.stopPropagation()
               handleOpenInExplorer()
@@ -109,8 +127,8 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
           {project.liveUrl && (
             <Button
               size="sm"
-              variant="secondary"
               className="h-8 text-xs gap-1.5"
+              style={{ backgroundColor: '#4ADE80', color: '#121212' }}
               onClick={(e) => {
                 e.stopPropagation()
                 handleOpenLiveUrl()
@@ -127,64 +145,83 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground truncate">{project.name}</h3>
-            <p className="text-xs text-muted-foreground truncate mt-0.5">
+            <h3 className="font-medium truncate" style={{ color: '#f5f5f5' }}>{project.name}</h3>
+            <p className="text-xs truncate mt-0.5" style={{ color: '#888888' }}>
               {project.localPath}
             </p>
           </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" style={{ color: '#888888' }}>
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation()
-                onEdit()
-              }}>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48"
+              style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+            >
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit()
+                }}
+                style={{ color: '#f5f5f5' }}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Edit Project
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation()
-                onOpenVault()
-              }}>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenVault()
+                }}
+                style={{ color: '#f5f5f5' }}
+              >
                 <Key className="w-4 h-4 mr-2" />
                 Open Vault
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation()
-                handleOpenInCursor()
-              }}>
+              <DropdownMenuSeparator style={{ backgroundColor: '#2a2a2a' }} />
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleOpenInCursor()
+                }}
+                style={{ color: '#f5f5f5' }}
+              >
                 <MonitorPlay className="w-4 h-4 mr-2" />
                 Open in Cursor
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation()
-                handleOpenInExplorer()
-              }}>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleOpenInExplorer()
+                }}
+                style={{ color: '#f5f5f5' }}
+              >
                 <FolderOpen className="w-4 h-4 mr-2" />
                 Copy Path
               </DropdownMenuItem>
               {project.liveUrl && (
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation()
-                  handleOpenLiveUrl()
-                }}>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleOpenLiveUrl()
+                  }}
+                  style={{ color: '#f5f5f5' }}
+                >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Open Live URL
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator style={{ backgroundColor: '#2a2a2a' }} />
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation()
                   onDelete()
                 }}
+                style={{ color: '#EF4444' }}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Project
@@ -194,19 +231,21 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
+        <div className="flex items-center gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #2a2a2a' }}>
           <div className="flex items-center gap-1.5">
-            <Key className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">
+            <Key className="w-3.5 h-3.5" style={{ color: '#888888' }} />
+            <span className="text-xs" style={{ color: '#888888' }}>
               {project.credentials.length} credentials
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className={cn(
-              'w-1.5 h-1.5 rounded-full',
-              project.tasks.filter(t => !t.completed).length > 0 ? 'bg-primary' : 'bg-muted-foreground'
-            )} />
-            <span className="text-xs text-muted-foreground">
+            <div 
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ 
+                backgroundColor: project.tasks.filter(t => !t.completed).length > 0 ? '#4ADE80' : '#888888' 
+              }}
+            />
+            <span className="text-xs" style={{ color: '#888888' }}>
               {project.tasks.filter(t => !t.completed).length} tasks
             </span>
           </div>

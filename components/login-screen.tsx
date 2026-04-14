@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Shield, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
@@ -43,23 +44,29 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: '#121212' }}>
       {/* Vader Vault Logo */}
       <div className="flex flex-col items-center gap-6 mb-8">
         <div className="relative">
-          <div className="w-20 h-20 rounded-2xl bg-card border border-border flex items-center justify-center">
-            <Shield className="w-10 h-10 text-primary" />
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#2a2a2a] flex items-center justify-center" style={{ backgroundColor: '#1c1c1c' }}>
+            <Image 
+              src="/msc-icon.png" 
+              alt="MSC-Projectz" 
+              width={96} 
+              height={96}
+              className="object-contain"
+            />
           </div>
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-            <Lock className="w-3 h-3 text-primary-foreground" />
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#4ADE80' }}>
+            <Lock className="w-4 h-4" style={{ color: '#121212' }} />
           </div>
         </div>
         
         <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight" style={{ color: '#f5f5f5' }}>
             Vader Vault
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm mt-1" style={{ color: '#888888' }}>
             {isFirstTime ? 'Create your master password' : 'Enter your master password'}
           </p>
         </div>
@@ -73,13 +80,19 @@ export function LoginScreen() {
             placeholder="Master Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12 bg-card border-border pr-12 text-foreground placeholder:text-muted-foreground focus:ring-primary"
+            className="h-12 pr-12"
+            style={{ 
+              backgroundColor: '#1c1c1c', 
+              borderColor: '#2a2a2a', 
+              color: '#f5f5f5' 
+            }}
             autoFocus
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+            style={{ color: '#888888' }}
           >
             {showPassword ? (
               <EyeOff className="w-5 h-5" />
@@ -90,7 +103,7 @@ export function LoginScreen() {
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-destructive text-sm">
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#EF4444' }}>
             <AlertCircle className="w-4 h-4" />
             <span>{error}</span>
           </div>
@@ -98,12 +111,16 @@ export function LoginScreen() {
 
         <Button
           type="submit"
-          className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+          className="w-full h-12 font-medium"
+          style={{ 
+            backgroundColor: '#4ADE80', 
+            color: '#121212' 
+          }}
           disabled={isLoading}
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-[#121212]/30 border-t-[#121212] rounded-full animate-spin" />
               <span>Authenticating...</span>
             </div>
           ) : isFirstTime ? (
@@ -116,7 +133,8 @@ export function LoginScreen() {
         {!isFirstTime && (
           <button
             type="button"
-            className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full text-sm transition-colors hover:text-[#f5f5f5]"
+            style={{ color: '#888888' }}
           >
             Forgot Password?
           </button>
@@ -124,7 +142,7 @@ export function LoginScreen() {
       </form>
 
       {/* Footer */}
-      <div className="absolute bottom-6 text-xs text-muted-foreground">
+      <div className="absolute bottom-6 text-xs" style={{ color: '#888888' }}>
         Powered by the MSC Media Engine
       </div>
     </div>

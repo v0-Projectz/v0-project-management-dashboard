@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { useAppStore } from '@/lib/store'
@@ -8,9 +9,11 @@ import { useAppStore } from '@/lib/store'
 interface DashboardLayoutProps {
   children: React.ReactNode
   onAddProject: () => void
+  searchQuery: string
+  onSearchChange: (query: string) => void
 }
 
-export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps) {
+export function DashboardLayout({ children, onAddProject, searchQuery, onSearchChange }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const currentView = useAppStore((s) => s.currentView)
 
@@ -24,7 +27,7 @@ export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#121212' }}>
       <DashboardSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -39,18 +42,46 @@ export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps
         )}
       >
         {/* Header Bar */}
-        <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
+        <header 
+          className="h-16 sticky top-0 z-30 flex items-center justify-between px-6"
+          style={{ 
+            backgroundColor: 'rgba(18, 18, 18, 0.8)', 
+            backdropFilter: 'blur(8px)',
+            borderBottom: '1px solid #2a2a2a' 
+          }}
+        >
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
+            <h1 className="text-lg font-semibold" style={{ color: '#f5f5f5' }}>{getViewTitle()}</h1>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs text-muted-foreground">System Online</span>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#4ADE80' }} />
+              <span className="text-xs" style={{ color: '#888888' }}>System Online</span>
             </div>
           </div>
           
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-            <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+          <div className="flex items-center gap-4">
+            {/* Search Field */}
+            {currentView === 'dashboard' && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#888888' }} />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2"
+                  style={{ 
+                    backgroundColor: '#1c1c1c', 
+                    border: '1px solid #2a2a2a',
+                    color: '#f5f5f5'
+                  }}
+                />
+              </div>
+            )}
+            
+            <div className="flex items-center gap-3 text-xs" style={{ color: '#888888' }}>
+              <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+              <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
           </div>
         </header>
 
@@ -60,7 +91,7 @@ export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps
         </div>
 
         {/* Footer */}
-        <footer className="fixed bottom-0 right-0 p-4 text-xs text-muted-foreground">
+        <footer className="fixed bottom-0 right-0 p-4 text-xs" style={{ color: '#888888' }}>
           Powered by the MSC Media Engine
         </footer>
       </main>
