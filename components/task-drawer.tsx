@@ -4,21 +4,45 @@ import { useState, useRef, useEffect } from 'react'
 import { 
   X, 
   Plus, 
-  Check, 
   Trash2, 
   Pencil,
-  FolderOpen
+  FolderOpen,
+  Circle,
+  Clock,
+  CheckCircle2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
-import type { Project, Task } from '@/lib/types'
+import type { Project, Task, TaskStatus } from '@/lib/types'
 
 interface TaskDrawerProps {
   isOpen: boolean
   onClose: () => void
   project: Project | null
+}
+
+// Status configuration
+const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgColor: string }> = {
+  'todo': { 
+    label: 'To Do', 
+    icon: Circle, 
+    color: '#888888',
+    bgColor: 'rgba(136, 136, 136, 0.1)'
+  },
+  'in-progress': { 
+    label: 'In Progress', 
+    icon: Clock, 
+    color: '#F59E0B',
+    bgColor: 'rgba(245, 158, 11, 0.1)'
+  },
+  'done': { 
+    label: 'Done', 
+    icon: CheckCircle2, 
+    color: '#4ADE80',
+    bgColor: 'rgba(74, 222, 128, 0.1)'
+  },
 }
 
 export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
@@ -28,9 +52,9 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const editInputRef = useRef<HTMLInputElement>(null)
   
   const addTask = useAppStore((s) => s.addTask)
-  const toggleTask = useAppStore((s) => s.toggleTask)
+  const cycleTaskStatus = useAppStore((s) => s.cycleTaskStatus)
+  const updateTaskTitle = useAppStore((s) => s.updateTaskTitle)
   const deleteTask = useAppStore((s) => s.deleteTask)
-  const updateProject = useAppStore((s) => s.updateProject)
   const appSettings = useAppStore((s) => s.appSettings)
   const projects = useAppStore((s) => s.projects)
   
@@ -58,9 +82,9 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     setNewTaskText('')
   }
   
-  const handleToggleTask = (taskId: string) => {
+  const handleCycleStatus = (taskId: string) => {
     if (!liveProject) return
-    toggleTask(liveProject.id, taskId)
+    cycleTaskStatus(liveProject.id, taskId)
   }
   
   const handleDeleteTask = (taskId: string) => {
@@ -78,12 +102,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       setEditingTaskId(null)
       return
     }
-    
-    const updatedTasks = liveProject.tasks.map(t => 
-      t.id === editingTaskId ? { ...t, title: editingText.trim() } : t
-    )
-    
-    updateProject(liveProject.id, { tasks: updatedTasks })
+    updateTaskTitle(liveProject.id, editingTaskId, editingText.trim())
     setEditingTaskId(null)
     setEditingText('')
   }
@@ -100,11 +119,98 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   
   if (!liveProject) return null
   
-  const incompleteTasks = liveProject.tasks.filter(t => !t.completed && !t.archived)
-  const completedTasks = liveProject.tasks.filter(t => t.completed || t.archived)
+  // Separate tasks by status
+  const todoTasks = liveProject.tasks.filter(t => (t.status || 'todo') === 'todo' && !t.archived)
+  const inProgressTasks = liveProject.tasks.filter(t => t.status === 'in-progress' && !t.archived)
+  const doneTasks = liveProject.tasks.filter(t => t.status === 'done' || t.archived)
+  
   const totalTasks = liveProject.tasks.length
-  const completedCount = completedTasks.length
+  const completedCount = doneTasks.length
   const progress = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
+
+  const renderTask = (task: Task) => {
+    const status = task.status || 'todo'
+    const config = statusConfig[status]
+    const StatusIcon = config.icon
+    const isDone = status === 'done'
+    const isInProgress = status === 'in-progress'
+    
+    return (
+      <div 
+        key={task.id}
+        className={cn(
+          'group flex items-center gap-3 p-3 rounded-lg transition-all',
+          isDone && 'opacity-60'
+        )}
+        style={{ 
+          backgroundColor: isInProgress 
+            ? (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.08)')
+            : surfaceColor,
+          border: `1px solid ${isInProgress ? 'rgba(245, 158, 11, 0.3)' : borderColor}`,
+          boxShadow: isInProgress ? '0 0 12px rgba(245, 158, 11, 0.1)' : 'none'
+        }}
+      >
+        {/* Status Badge - Clickable */}
+        <button
+          onClick={() => handleCycleStatus(task.id)}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0"
+          style={{ backgroundColor: config.bgColor }}
+          title={`Status: ${config.label} (click to change)`}
+        >
+          <StatusIcon className="w-3.5 h-3.5" style={{ color: config.color }} />
+          <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: config.color }}>
+            {config.label}
+          </span>
+        </button>
+        
+        {/* Task Title - Editable */}
+        {editingTaskId === task.id ? (
+          <Input
+            ref={editInputRef}
+            value={editingText}
+            onChange={(e) => setEditingText(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, 'edit')}
+            onBlur={handleSaveEdit}
+            className="flex-1 h-8 text-sm"
+            style={{ 
+              backgroundColor: bgColor, 
+              borderColor: '#4ADE80', 
+              color: textColor 
+            }}
+          />
+        ) : (
+          <span 
+            className={cn(
+              'flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
+              isDone && 'line-through'
+            )}
+            style={{ color: isDone ? mutedColor : textColor }}
+            onClick={() => handleStartEdit(task)}
+          >
+            {task.title}
+          </span>
+        )}
+        
+        {/* Actions */}
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => handleStartEdit(task)}
+            className="p-1.5 rounded transition-colors"
+            style={{ color: mutedColor }}
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => handleDeleteTask(task.id)}
+            className="p-1.5 rounded transition-colors hover:text-red-500"
+            style={{ color: mutedColor }}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -175,9 +281,20 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               style={{ width: `${progress}%`, backgroundColor: '#4ADE80' }}
             />
           </div>
-          <p className="text-xs mt-2" style={{ color: mutedColor }}>
-            {completedCount} of {totalTasks} tasks completed
-          </p>
+          <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: mutedColor }}>
+            <span className="flex items-center gap-1">
+              <Circle className="w-3 h-3" style={{ color: '#888888' }} />
+              {todoTasks.length} To Do
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" style={{ color: '#F59E0B' }} />
+              {inProgressTasks.length} In Progress
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" style={{ color: '#4ADE80' }} />
+              {doneTasks.length} Done
+            </span>
+          </div>
         </div>
         
         {/* Add Task Input */}
@@ -188,6 +305,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               value={newTaskText}
               onChange={(e) => setNewTaskText(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e, 'add')}
+              className="text-base"
               style={{ 
                 backgroundColor: surfaceColor, 
                 borderColor, 
@@ -207,126 +325,53 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         
         {/* Task List - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
-          {/* Incomplete Tasks */}
-          {incompleteTasks.length > 0 && (
+          {/* To Do Tasks */}
+          {todoTasks.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: mutedColor }}>
-                Active ({incompleteTasks.length})
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: mutedColor }}>
+                <Circle className="w-3 h-3" style={{ color: '#888888' }} />
+                To Do ({todoTasks.length})
               </h3>
               <div className="space-y-2">
-                {incompleteTasks.map((task) => (
-                  <div 
-                    key={task.id}
-                    className="group flex items-center gap-3 p-3 rounded-lg transition-colors"
-                    style={{ 
-                      backgroundColor: surfaceColor,
-                      border: `1px solid ${borderColor}`
-                    }}
-                  >
-                    <button
-                      onClick={() => handleToggleTask(task.id)}
-                      className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0"
-                      style={{ borderColor: '#4ADE80' }}
-                    >
-                      {task.completed && <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />}
-                    </button>
-                    
-                    {editingTaskId === task.id ? (
-                      <Input
-                        ref={editInputRef}
-                        value={editingText}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(e, 'edit')}
-                        onBlur={handleSaveEdit}
-                        className="flex-1 h-8 text-sm"
-                        style={{ 
-                          backgroundColor: bgColor, 
-                          borderColor: '#4ADE80', 
-                          color: textColor 
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="flex-1 text-sm cursor-pointer"
-                        style={{ color: textColor }}
-                        onClick={() => handleStartEdit(task)}
-                      >
-                        {task.title}
-                      </span>
-                    )}
-                    
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleStartEdit(task)}
-                        className="p-1.5 rounded transition-colors"
-                        style={{ color: mutedColor }}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="p-1.5 rounded transition-colors hover:text-red-500"
-                        style={{ color: mutedColor }}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                {todoTasks.map(renderTask)}
               </div>
             </div>
           )}
           
-          {/* Completed Tasks */}
-          {completedTasks.length > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: mutedColor }}>
-                Completed ({completedTasks.length})
+          {/* In Progress Tasks */}
+          {inProgressTasks.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: '#F59E0B' }}>
+                <Clock className="w-3 h-3" />
+                In Progress ({inProgressTasks.length})
               </h3>
               <div className="space-y-2">
-                {completedTasks.map((task) => (
-                  <div 
-                    key={task.id}
-                    className="group flex items-center gap-3 p-3 rounded-lg transition-colors"
-                    style={{ 
-                      backgroundColor: surfaceColor,
-                      border: `1px solid ${borderColor}`,
-                      opacity: 0.6
-                    }}
-                  >
-                    <div 
-                      className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
-                    >
-                      <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />
-                    </div>
-                    <span 
-                      className="flex-1 text-sm line-through"
-                      style={{ color: mutedColor }}
-                    >
-                      {task.title}
-                    </span>
-                    <button
-                      onClick={() => handleDeleteTask(task.id)}
-                      className="p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100 hover:text-red-500"
-                      style={{ color: mutedColor }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                {inProgressTasks.map(renderTask)}
+              </div>
+            </div>
+          )}
+          
+          {/* Done Tasks */}
+          {doneTasks.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: '#4ADE80' }}>
+                <CheckCircle2 className="w-3 h-3" />
+                Done ({doneTasks.length})
+              </h3>
+              <div className="space-y-2">
+                {doneTasks.map(renderTask)}
               </div>
             </div>
           )}
           
           {/* Empty State */}
-          {incompleteTasks.length === 0 && completedTasks.length === 0 && (
+          {todoTasks.length === 0 && inProgressTasks.length === 0 && doneTasks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div 
                 className="w-16 h-16 rounded-xl flex items-center justify-center mb-4"
                 style={{ backgroundColor: surfaceColor }}
               >
-                <Check className="w-8 h-8" style={{ color: '#4ADE80' }} />
+                <CheckCircle2 className="w-8 h-8" style={{ color: '#4ADE80' }} />
               </div>
               <h3 className="font-medium mb-1" style={{ color: textColor }}>No Tasks Yet</h3>
               <p className="text-sm text-center max-w-xs" style={{ color: mutedColor }}>

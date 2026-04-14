@@ -68,9 +68,9 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit, 
     }
   }
 
-  // Calculate progress from tasks
+  // Calculate progress from tasks with "done" status
   const totalTasks = project.tasks.length
-  const completedTasks = project.tasks.filter(t => t.completed).length
+  const completedTasks = project.tasks.filter(t => t.status === 'done' || t.completed).length
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
 
   return (

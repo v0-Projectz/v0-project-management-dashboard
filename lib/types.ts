@@ -13,9 +13,12 @@ export interface EmailSettings {
   smtpPass: string
 }
 
+export type TaskStatus = 'todo' | 'in-progress' | 'done'
+
 export interface Task {
   id: string
   title: string
+  status: TaskStatus
   completed: boolean
   archived?: boolean
   createdAt: Date

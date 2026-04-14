@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { RegisteredUser } from './types'
+import { RegisteredUser, TaskStatus } from './types'
 
 interface AppState {
   isAuthenticated: boolean
@@ -56,6 +56,8 @@ interface AppState {
   // Task actions
   addTask: (projectId: string, title: string) => void
   toggleTask: (projectId: string, taskId: string) => void
+  cycleTaskStatus: (projectId: string, taskId: string) => void
+  updateTaskTitle: (projectId: string, taskId: string, title: string) => void
   deleteTask: (projectId: string, taskId: string) => void
   archiveTask: (projectId: string, taskId: string) => void
   
@@ -74,11 +76,12 @@ const generateId = (): string => {
   })
 }
 
+// Default app settings - Dark Mode and Grid View as hardcoded landing state
 const defaultAppSettings: AppSettings = {
   email: '',
   pathFormat: 'windows',
-  theme: 'dark',
-  projectViewMode: 'grid',
+  theme: 'dark', // Hardcoded default: Dark Mode
+  projectViewMode: 'grid', // Hardcoded default: Grid View
   smtp: {
     incomingHost: 'mail.spacemail.com',
     incomingPort: '993',
@@ -325,6 +328,7 @@ export const useAppStore = create<AppState>()(
         const newTask: Task = {
           id: generateId(),
           title,
+          status: 'todo',
           completed: false,
           createdAt: new Date(),
         }
@@ -345,6 +349,49 @@ export const useAppStore = create<AppState>()(
                   ...p,
                   tasks: p.tasks.map((t) =>
                     t.id === taskId ? { ...t, completed: !t.completed } : t
+                  ),
+                  updatedAt: new Date(),
+                }
+              : p
+          ),
+        }))
+      },
+      
+      cycleTaskStatus: (projectId, taskId) => {
+        const statusOrder: TaskStatus[] = ['todo', 'in-progress', 'done']
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  tasks: p.tasks.map((t) => {
+                    if (t.id === taskId) {
+                      const currentIndex = statusOrder.indexOf(t.status || 'todo')
+                      const nextIndex = (currentIndex + 1) % statusOrder.length
+                      const newStatus = statusOrder[nextIndex]
+                      return { 
+                        ...t, 
+                        status: newStatus,
+                        completed: newStatus === 'done'
+                      }
+                    }
+                    return t
+                  }),
+                  updatedAt: new Date(),
+                }
+              : p
+          ),
+        }))
+      },
+      
+      updateTaskTitle: (projectId, taskId, title) => {
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  tasks: p.tasks.map((t) =>
+                    t.id === taskId ? { ...t, title } : t
                   ),
                   updatedAt: new Date(),
                 }
@@ -390,6 +437,7 @@ export const useAppStore = create<AppState>()(
           const newTask: Task = {
             id: generateId(),
             title,
+            status: 'todo',
             completed: false,
             createdAt: new Date(),
           }
@@ -408,12 +456,12 @@ export const useAppStore = create<AppState>()(
         const allTasks: { projectId: string; projectName: string; task: Task }[] = []
         projects.forEach((project) => {
           project.tasks
-            .filter((task) => !task.completed && !task.archived)
+            .filter((task) => task.status !== 'done' && !task.archived)
             .forEach((task) => {
               allTasks.push({
                 projectId: project.id,
                 projectName: project.name,
-                task,
+                task: { ...task, status: task.status || 'todo' },
               })
             })
         })
@@ -425,12 +473,12 @@ export const useAppStore = create<AppState>()(
         const archivedTasks: { projectId: string; projectName: string; task: Task }[] = []
         projects.forEach((project) => {
           project.tasks
-            .filter((task) => task.archived || task.completed)
+            .filter((task) => task.archived || task.status === 'done')
             .forEach((task) => {
               archivedTasks.push({
                 projectId: project.id,
                 projectName: project.name,
-                task,
+                task: { ...task, status: task.status || 'done' },
               })
             })
         })
