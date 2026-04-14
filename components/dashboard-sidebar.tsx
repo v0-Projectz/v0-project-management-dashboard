@@ -6,7 +6,8 @@ import {
   HelpCircle,
   LogOut,
   Plus,
-  ChevronLeft
+  ChevronLeft,
+  ClipboardList
 } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,7 @@ interface SidebarProps {
 
 const navItems: { id: ViewType; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'global-tasks', label: 'Global Tasks', icon: ClipboardList },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ]
@@ -115,6 +117,14 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                       style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
                     >
                       {projects.length}
+                    </span>
+                  )}
+                  {!collapsed && item.id === 'global-tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
+                    <span 
+                      className="ml-auto text-xs px-1.5 py-0.5 rounded"
+                      style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                    >
+                      {projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0)}
                     </span>
                   )}
                 </button>

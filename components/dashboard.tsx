@@ -9,6 +9,7 @@ import { ProjectVault } from './project-vault'
 import { TaskPulse } from './task-pulse'
 import { SettingsView } from './settings-view'
 import { HelpView } from './help-view'
+import { GlobalTasksView } from './global-tasks-view'
 import { useAppStore } from '@/lib/store'
 import { X } from 'lucide-react'
 
@@ -37,6 +38,8 @@ export function Dashboard() {
         return <SettingsView />
       case 'help':
         return <HelpView />
+      case 'global-tasks':
+        return <GlobalTasksView />
       case 'dashboard':
       default:
         return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { 
   X, 
   ChevronLeft, 
@@ -12,7 +12,8 @@ import {
   Plus,
   Trash2,
   Check,
-  ImageIcon
+  ImageIcon,
+  Upload
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -35,16 +36,31 @@ const steps: { id: WizardStep; label: string; icon: React.ElementType }[] = [
 
 export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   const addProject = useAppStore((s) => s.addProject)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [currentStep, setCurrentStep] = useState<WizardStep>('identity')
   
   // Form state
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [localPath, setLocalPath] = useState('')
   const [liveUrl, setLiveUrl] = useState('')
   const [credentials, setCredentials] = useState<Omit<Credential, 'id'>[]>([])
   const [status, setStatus] = useState<'local' | 'live'>('local')
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string
+        setThumbnail(dataUrl)
+        setThumbnailPreview(dataUrl)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep)
 
@@ -94,6 +110,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     setCurrentStep('identity')
     setName('')
     setThumbnail('')
+    setThumbnailPreview(null)
     setLocalPath('')
     setLiveUrl('')
     setCredentials([])
@@ -213,22 +230,64 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                   <Input
                     id="thumbnail"
                     placeholder="https://example.com/image.jpg"
-                    value={thumbnail}
-                    onChange={(e) => setThumbnail(e.target.value)}
+                    value={thumbnailPreview ? '' : thumbnail}
+                    onChange={(e) => {
+                      setThumbnail(e.target.value)
+                      setThumbnailPreview(null)
+                    }}
+                    disabled={!!thumbnailPreview}
                     style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
+                  />
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
                   />
                   <Button 
                     variant="secondary" 
                     size="icon" 
                     type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Upload local image"
                     style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
                   >
-                    <ImageIcon className="w-4 h-4" />
+                    <Upload className="w-4 h-4" />
                   </Button>
                 </div>
                 <p className="text-xs" style={{ color: '#888888' }}>
                   Add a screenshot or logo for visual identification
                 </p>
+                
+                {/* Thumbnail Preview */}
+                {thumbnailPreview && (
+                  <div className="mt-3 relative">
+                    <div 
+                      className="aspect-video rounded-lg overflow-hidden"
+                      style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
+                    >
+                      <img 
+                        src={thumbnailPreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => {
+                        setThumbnail('')
+                        setThumbnailPreview(null)
+                        if (fileInputRef.current) fileInputRef.current.value = ''
+                      }}
+                      style={{ backgroundColor: 'rgba(18,18,18,0.8)', color: '#f5f5f5' }}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )}

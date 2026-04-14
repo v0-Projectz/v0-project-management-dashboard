@@ -283,12 +283,27 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div 
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ 
-                backgroundColor: project.tasks.filter(t => !t.completed).length > 0 ? '#4ADE80' : '#888888' 
-              }}
-            />
+            {/* Progress Circle */}
+            <svg className="w-4 h-4 -rotate-90" viewBox="0 0 16 16">
+              <circle
+                cx="8"
+                cy="8"
+                r="6"
+                fill="none"
+                stroke="#2a2a2a"
+                strokeWidth="2"
+              />
+              <circle
+                cx="8"
+                cy="8"
+                r="6"
+                fill="none"
+                stroke="#4ADE80"
+                strokeWidth="2"
+                strokeDasharray={`${(completedTasks / Math.max(totalTasks, 1)) * 37.7} 37.7`}
+                strokeLinecap="round"
+              />
+            </svg>
             <span className="text-xs" style={{ color: '#888888' }}>
               {completedTasks}/{totalTasks} tasks
             </span>

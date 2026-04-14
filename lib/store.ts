@@ -57,9 +57,22 @@ interface AppState {
   addTask: (projectId: string, title: string) => void
   toggleTask: (projectId: string, taskId: string) => void
   deleteTask: (projectId: string, taskId: string) => void
+  archiveTask: (projectId: string, taskId: string) => void
+  
+  // Global task actions
+  addGlobalTask: (title: string) => void
+  getAllTasks: () => { projectId: string; projectName: string; task: Task }[]
+  getArchivedTasks: () => { projectId: string; projectName: string; task: Task }[]
 }
 
-const generateId = () => Math.random().toString(36).substring(2, 15)
+// UUID v4 generator for robust unique IDs
+const generateId = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 const defaultAppSettings: AppSettings = {
   email: '',
@@ -352,6 +365,76 @@ export const useAppStore = create<AppState>()(
               : p
           ),
         }))
+      },
+      
+      archiveTask: (projectId, taskId) => {
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  tasks: p.tasks.map((t) =>
+                    t.id === taskId ? { ...t, archived: true, completed: true } : t
+                  ),
+                  updatedAt: new Date(),
+                }
+              : p
+          ),
+        }))
+      },
+      
+      addGlobalTask: (title) => {
+        // Add task to first available project or create an "Unassigned" bucket
+        const { projects } = get()
+        if (projects.length > 0) {
+          const newTask: Task = {
+            id: generateId(),
+            title,
+            completed: false,
+            createdAt: new Date(),
+          }
+          set((state) => ({
+            projects: state.projects.map((p, index) =>
+              index === 0
+                ? { ...p, tasks: [...p.tasks, newTask], updatedAt: new Date() }
+                : p
+            ),
+          }))
+        }
+      },
+      
+      getAllTasks: () => {
+        const { projects } = get()
+        const allTasks: { projectId: string; projectName: string; task: Task }[] = []
+        projects.forEach((project) => {
+          project.tasks
+            .filter((task) => !task.completed && !task.archived)
+            .forEach((task) => {
+              allTasks.push({
+                projectId: project.id,
+                projectName: project.name,
+                task,
+              })
+            })
+        })
+        return allTasks
+      },
+      
+      getArchivedTasks: () => {
+        const { projects } = get()
+        const archivedTasks: { projectId: string; projectName: string; task: Task }[] = []
+        projects.forEach((project) => {
+          project.tasks
+            .filter((task) => task.archived || task.completed)
+            .forEach((task) => {
+              archivedTasks.push({
+                projectId: project.id,
+                projectName: project.name,
+                task,
+              })
+            })
+        })
+        return archivedTasks
       },
     }),
     {

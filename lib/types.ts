@@ -17,6 +17,7 @@ export interface Task {
   id: string
   title: string
   completed: boolean
+  archived?: boolean
   createdAt: Date
 }
 
@@ -37,7 +38,7 @@ export interface Project {
 
 export type WizardStep = 'identity' | 'connectivity' | 'credentials' | 'status'
 
-export type ViewType = 'dashboard' | 'settings' | 'help'
+export type ViewType = 'dashboard' | 'global-tasks' | 'settings' | 'help'
 
 export type PathFormat = 'windows' | 'mac'
 
