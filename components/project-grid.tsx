@@ -9,9 +9,10 @@ interface ProjectGridProps {
   onAddProject: () => void
   onSelectProject: (id: string) => void
   onOpenVault: (id: string) => void
+  onEditProject: (id: string) => void
 }
 
-export function ProjectGrid({ onAddProject, onSelectProject, onOpenVault }: ProjectGridProps) {
+export function ProjectGrid({ onAddProject, onSelectProject, onOpenVault, onEditProject }: ProjectGridProps) {
   const projects = useAppStore((s) => s.projects)
   const deleteProject = useAppStore((s) => s.deleteProject)
 
@@ -72,6 +73,7 @@ export function ProjectGrid({ onAddProject, onSelectProject, onOpenVault }: Proj
             onSelect={() => onSelectProject(project.id)}
             onDelete={() => deleteProject(project.id)}
             onOpenVault={() => onOpenVault(project.id)}
+            onEdit={() => onEditProject(project.id)}
           />
         ))}
       </div>

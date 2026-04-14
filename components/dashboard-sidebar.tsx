@@ -2,7 +2,6 @@
 
 import { 
   LayoutDashboard, 
-  FolderKanban, 
   Settings, 
   HelpCircle,
   LogOut,
@@ -13,6 +12,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
+import type { ViewType } from '@/lib/types'
 
 interface SidebarProps {
   collapsed: boolean
@@ -20,9 +20,8 @@ interface SidebarProps {
   onAddProject: () => void
 }
 
-const navItems = [
+const navItems: { id: ViewType; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'projects', label: 'Projects', icon: FolderKanban },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ]
@@ -30,6 +29,8 @@ const navItems = [
 export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarProps) {
   const logout = useAppStore((s) => s.logout)
   const projects = useAppStore((s) => s.projects)
+  const currentView = useAppStore((s) => s.currentView)
+  const setCurrentView = useAppStore((s) => s.setCurrentView)
 
   return (
     <aside
@@ -83,10 +84,11 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = item.id === 'dashboard'
+            const isActive = currentView === item.id
             return (
               <li key={item.id}>
                 <button
+                  onClick={() => setCurrentView(item.id)}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
                     isActive
@@ -97,7 +99,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   {!collapsed && <span>{item.label}</span>}
-                  {!collapsed && item.id === 'projects' && (
+                  {!collapsed && item.id === 'dashboard' && (
                     <span className="ml-auto text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
                       {projects.length}
                     </span>
@@ -114,12 +116,12 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <button
           onClick={logout}
           className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
             collapsed && 'justify-center px-0'
           )}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
-          {!collapsed && <span>Lock Vault</span>}
+          {!collapsed && <span>Sign Out</span>}
         </button>
       </div>
 

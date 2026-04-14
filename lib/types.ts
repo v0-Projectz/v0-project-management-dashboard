@@ -35,3 +35,17 @@ export interface Project {
 }
 
 export type WizardStep = 'identity' | 'connectivity' | 'credentials' | 'status'
+
+export type ViewType = 'dashboard' | 'settings' | 'help'
+
+export type PathFormat = 'windows' | 'mac'
+
+export interface AppSettings {
+  email: string
+  pathFormat: PathFormat
+  smtp: {
+    host: string
+    port: string
+    apiKey: string
+  }
+}

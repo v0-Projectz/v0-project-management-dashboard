@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
+import { useAppStore } from '@/lib/store'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -11,6 +12,16 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const currentView = useAppStore((s) => s.currentView)
+
+  const getViewTitle = () => {
+    switch (currentView) {
+      case 'dashboard': return 'Dashboard'
+      case 'settings': return 'Settings'
+      case 'help': return 'Help & Documentation'
+      default: return 'Dashboard'
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,7 +41,7 @@ export function DashboardLayout({ children, onAddProject }: DashboardLayoutProps
         {/* Header Bar */}
         <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+            <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-xs text-muted-foreground">System Online</span>

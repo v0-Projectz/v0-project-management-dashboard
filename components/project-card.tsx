@@ -1,6 +1,6 @@
 'use client'
 
-import { ExternalLink, FolderOpen, MonitorPlay, MoreVertical, Trash2, Key } from 'lucide-react'
+import { ExternalLink, FolderOpen, MonitorPlay, MoreVertical, Trash2, Key, Settings } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,16 +18,15 @@ interface ProjectCardProps {
   onSelect: () => void
   onDelete: () => void
   onOpenVault: () => void
+  onEdit: () => void
 }
 
-export function ProjectCard({ project, onSelect, onDelete, onOpenVault }: ProjectCardProps) {
+export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }: ProjectCardProps) {
   const handleOpenInCursor = () => {
-    // This would normally open VS Code / Cursor with the local path
     window.open(`vscode://file/${project.localPath}`, '_blank')
   }
 
   const handleOpenInExplorer = () => {
-    // Copy local path to clipboard as fallback
     navigator.clipboard.writeText(project.localPath)
   }
 
@@ -69,6 +68,17 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault }: Projec
         >
           {project.status}
         </Badge>
+
+        {/* Settings Icon - Always visible */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}
+          className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-background/80 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
 
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -132,11 +142,19 @@ export function ProjectCard({ project, onSelect, onDelete, onOpenVault }: Projec
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={(e) => {
                 e.stopPropagation()
+                onEdit()
+              }}>
+                <Settings className="w-4 h-4 mr-2" />
+                Edit Project
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation()
                 onOpenVault()
               }}>
                 <Key className="w-4 h-4 mr-2" />
                 Open Vault
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={(e) => {
                 e.stopPropagation()
                 handleOpenInCursor()

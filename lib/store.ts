@@ -2,18 +2,27 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Project, Task, Credential, EmailSettings } from './types'
+import type { Project, Task, Credential, EmailSettings, ViewType, AppSettings } from './types'
 
 interface AppState {
   isAuthenticated: boolean
   masterPassword: string | null
   projects: Project[]
   selectedProjectId: string | null
+  currentView: ViewType
+  appSettings: AppSettings
   
   // Auth actions
   setMasterPassword: (password: string) => void
+  changeMasterPassword: (oldPassword: string, newPassword: string) => boolean
   login: (password: string) => boolean
   logout: () => void
+  
+  // Navigation
+  setCurrentView: (view: ViewType) => void
+  
+  // App Settings
+  updateAppSettings: (settings: Partial<AppSettings>) => void
   
   // Project actions
   addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -37,6 +46,16 @@ interface AppState {
 
 const generateId = () => Math.random().toString(36).substring(2, 15)
 
+const defaultAppSettings: AppSettings = {
+  email: '',
+  pathFormat: 'windows',
+  smtp: {
+    host: '',
+    port: '587',
+    apiKey: '',
+  },
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -44,8 +63,19 @@ export const useAppStore = create<AppState>()(
       masterPassword: null,
       projects: [],
       selectedProjectId: null,
+      currentView: 'dashboard',
+      appSettings: defaultAppSettings,
 
       setMasterPassword: (password) => set({ masterPassword: password }),
+      
+      changeMasterPassword: (oldPassword, newPassword) => {
+        const { masterPassword } = get()
+        if (oldPassword === masterPassword) {
+          set({ masterPassword: newPassword })
+          return true
+        }
+        return false
+      },
       
       login: (password) => {
         const { masterPassword } = get()
@@ -57,7 +87,15 @@ export const useAppStore = create<AppState>()(
         return false
       },
       
-      logout: () => set({ isAuthenticated: false }),
+      logout: () => set({ isAuthenticated: false, currentView: 'dashboard' }),
+      
+      setCurrentView: (view) => set({ currentView: view }),
+      
+      updateAppSettings: (settings) => {
+        set((state) => ({
+          appSettings: { ...state.appSettings, ...settings },
+        }))
+      },
 
       addProject: (project) => {
         const newProject: Project = {
