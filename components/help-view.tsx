@@ -7,8 +7,6 @@ import {
   Code, 
   Workflow, 
   HelpCircle, 
-  ChevronDown,
-  ExternalLink,
   FolderOpen,
   Key,
   Globe,
@@ -16,15 +14,13 @@ import {
   Zap,
   Monitor
 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { 
   Accordion, 
   AccordionContent, 
   AccordionItem, 
   AccordionTrigger 
 } from '@/components/ui/accordion'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
+import { useAppStore } from '@/lib/store'
 
 interface FAQItem {
   id: string
@@ -176,6 +172,8 @@ const categories = [
 export function HelpView() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
+  const [activeTab, setActiveTab] = useState<'faq' | 'guides'>('faq')
+  const setCurrentView = useAppStore((s) => s.setCurrentView)
 
   const filteredFAQs = faqItems.filter((item) => {
     const matchesSearch = 
@@ -209,12 +207,15 @@ export function HelpView() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-primary" />
+          <div 
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
+          >
+            <BookOpen className="w-5 h-5" style={{ color: '#4ADE80' }} />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Help & Documentation</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl font-semibold" style={{ color: '#f5f5f5' }}>Help & Documentation</h1>
+            <p className="text-sm" style={{ color: '#888888' }}>
               Developer FAQ and workflow guides for MSC-Projectz
             </p>
           </div>
@@ -223,12 +224,17 @@ export function HelpView() {
 
       {/* Search */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#888888' }} />
+        <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search documentation..."
-          className="pl-10 bg-muted/50 border-border"
+          className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+          style={{ 
+            backgroundColor: '#1c1c1c', 
+            border: '1px solid #2a2a2a',
+            color: '#f5f5f5'
+          }}
         />
       </div>
 
@@ -238,36 +244,55 @@ export function HelpView() {
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              activeCategory === cat.id
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
-            }`}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+            style={{ 
+              backgroundColor: activeCategory === cat.id ? '#4ADE80' : '#2a2a2a',
+              color: activeCategory === cat.id ? '#121212' : '#888888'
+            }}
           >
             {cat.label}
           </button>
         ))}
       </div>
 
-      {/* Content Tabs */}
-      <Tabs defaultValue="faq" className="space-y-6">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="faq" className="gap-2">
+      {/* Tabs */}
+      <div className="mb-6">
+        <div 
+          className="inline-flex rounded-lg p-1"
+          style={{ backgroundColor: '#1c1c1c' }}
+        >
+          <button
+            onClick={() => setActiveTab('faq')}
+            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            style={{ 
+              backgroundColor: activeTab === 'faq' ? '#2a2a2a' : 'transparent',
+              color: activeTab === 'faq' ? '#f5f5f5' : '#888888'
+            }}
+          >
             <Code className="w-4 h-4" />
             Developer FAQ
-          </TabsTrigger>
-          <TabsTrigger value="guides" className="gap-2">
+          </button>
+          <button
+            onClick={() => setActiveTab('guides')}
+            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            style={{ 
+              backgroundColor: activeTab === 'guides' ? '#2a2a2a' : 'transparent',
+              color: activeTab === 'guides' ? '#f5f5f5' : '#888888'
+            }}
+          >
             <Workflow className="w-4 h-4" />
             Workflow Guides
-          </TabsTrigger>
-        </TabsList>
+          </button>
+        </div>
+      </div>
 
-        {/* FAQ Tab */}
-        <TabsContent value="faq" className="space-y-4">
+      {/* FAQ Tab */}
+      {activeTab === 'faq' && (
+        <div className="space-y-2">
           {filteredFAQs.length === 0 ? (
             <div className="text-center py-12">
-              <HelpCircle className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No matching questions found</p>
+              <HelpCircle className="w-12 h-12 mx-auto mb-3" style={{ color: '#888888' }} />
+              <p style={{ color: '#888888' }}>No matching questions found</p>
             </div>
           ) : (
             <Accordion type="single" collapsible className="space-y-2">
@@ -275,92 +300,127 @@ export function HelpView() {
                 <AccordionItem 
                   key={item.id} 
                   value={item.id}
-                  className="bg-card border border-border rounded-lg px-4 data-[state=open]:bg-muted/30"
+                  className="rounded-lg px-4"
+                  style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
                 >
                   <AccordionTrigger className="hover:no-underline py-4">
                     <div className="flex items-start gap-3 text-left">
-                      <Badge variant="outline" className="flex-shrink-0 gap-1.5 text-xs">
+                      <span 
+                        className="flex-shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded"
+                        style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
+                      >
                         {getCategoryIcon(item.category)}
                         {item.category}
-                      </Badge>
-                      <span className="font-medium text-foreground">{item.question}</span>
+                      </span>
+                      <span className="font-medium" style={{ color: '#f5f5f5' }}>{item.question}</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 pl-[88px]">
+                  <AccordionContent className="pb-4 pl-[88px]" style={{ color: '#888888' }}>
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
           )}
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Guides Tab */}
-        <TabsContent value="guides" className="space-y-4">
+      {/* Guides Tab */}
+      {activeTab === 'guides' && (
+        <div className="space-y-4">
           {filteredGuides.length === 0 ? (
             <div className="text-center py-12">
-              <Workflow className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No matching guides found</p>
+              <Workflow className="w-12 h-12 mx-auto mb-3" style={{ color: '#888888' }} />
+              <p style={{ color: '#888888' }}>No matching guides found</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredGuides.map((guide) => (
-                <div 
-                  key={guide.id}
-                  className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="gap-1.5 text-xs">
-                          {getCategoryIcon(guide.category)}
-                          {guide.category}
-                        </Badge>
-                      </div>
-                      <h3 className="font-semibold text-foreground text-lg">{guide.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{guide.description}</p>
+            filteredGuides.map((guide) => (
+              <div 
+                key={guide.id}
+                className="rounded-xl p-5 transition-colors"
+                style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+              >
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span 
+                        className="flex items-center gap-1.5 text-xs px-2 py-1 rounded"
+                        style={{ backgroundColor: '#2a2a2a', color: '#888888' }}
+                      >
+                        {getCategoryIcon(guide.category)}
+                        {guide.category}
+                      </span>
                     </div>
-                  </div>
-                  
-                  <div className="bg-muted/30 rounded-lg p-4">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                      Steps
-                    </p>
-                    <ol className="space-y-2">
-                      {guide.steps.map((step, index) => (
-                        <li key={index} className="flex items-start gap-3 text-sm">
-                          <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-xs font-medium">
-                            {index + 1}
-                          </span>
-                          <span className="text-muted-foreground">{step}</span>
-                        </li>
-                      ))}
-                    </ol>
+                    <h3 className="font-semibold text-lg" style={{ color: '#f5f5f5' }}>{guide.title}</h3>
+                    <p className="text-sm mt-1" style={{ color: '#888888' }}>{guide.description}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                
+                <div 
+                  className="rounded-lg p-4"
+                  style={{ backgroundColor: '#252525' }}
+                >
+                  <p 
+                    className="text-xs font-medium uppercase tracking-wider mb-3"
+                    style={{ color: '#888888' }}
+                  >
+                    Steps
+                  </p>
+                  <ol className="space-y-2">
+                    {guide.steps.map((step, index) => (
+                      <li key={index} className="flex items-start gap-3 text-sm">
+                        <span 
+                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium"
+                          style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                        >
+                          {index + 1}
+                        </span>
+                        <span style={{ color: '#888888' }}>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            ))
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
 
       {/* Quick Links */}
-      <div className="mt-8 p-4 bg-muted/30 rounded-xl border border-border">
-        <h3 className="text-sm font-medium text-foreground mb-3">Quick Links</h3>
+      <div 
+        className="mt-8 p-4 rounded-xl"
+        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+      >
+        <h3 className="text-sm font-medium mb-3" style={{ color: '#f5f5f5' }}>Quick Links</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors text-sm text-muted-foreground hover:text-foreground">
+          <button 
+            onClick={() => setCurrentView('dashboard')}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
+            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+          >
             <Monitor className="w-4 h-4" />
             Dashboard
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors text-sm text-muted-foreground hover:text-foreground">
+          <button 
+            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
+            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+          >
             <Key className="w-4 h-4" />
             Credentials
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors text-sm text-muted-foreground hover:text-foreground">
+          <button 
+            onClick={() => setCurrentView('settings')}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
+            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+          >
             <Server className="w-4 h-4" />
             SMTP Setup
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors text-sm text-muted-foreground hover:text-foreground">
+          <button 
+            onClick={() => setCurrentView('dashboard')}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm"
+            style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a', color: '#888888' }}
+          >
             <Globe className="w-4 h-4" />
             Live Projects
           </button>

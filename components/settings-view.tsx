@@ -18,11 +18,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAppStore } from '@/lib/store'
 
 export function SettingsView() {
-  const { appSettings, updateAppSettings, masterPassword, changeMasterPassword } = useAppStore()
+  const { appSettings, updateAppSettings, changeMasterPassword } = useAppStore()
   
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -80,27 +79,31 @@ export function SettingsView() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-2xl font-semibold" style={{ color: '#f5f5f5' }}>Settings</h1>
+        <p className="text-sm mt-1" style={{ color: '#888888' }}>
           Manage your account, preferences, and SMTP configuration
         </p>
       </div>
 
       {/* Profile Section */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="w-5 h-5 text-primary" />
+      <div 
+        className="rounded-xl p-6"
+        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+      >
+        <div className="mb-6">
+          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
+            <User className="w-5 h-5" style={{ color: '#4ADE80' }} />
             Profile
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm mt-1" style={{ color: '#888888' }}>
             Manage your master password and email address
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </p>
+        </div>
+        
+        <div className="space-y-6">
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm text-muted-foreground flex items-center gap-2">
+            <Label htmlFor="email" className="text-sm flex items-center gap-2" style={{ color: '#888888' }}>
               <Mail className="w-4 h-4" />
               Email Address
             </Label>
@@ -110,20 +113,21 @@ export function SettingsView() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="bg-muted/50 border-border max-w-md"
+              className="max-w-md"
+              style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
             />
           </div>
 
           {/* Change Password */}
-          <div className="pt-4 border-t border-border">
+          <div className="pt-4" style={{ borderTop: '1px solid #2a2a2a' }}>
             <div className="flex items-center gap-2 mb-4">
-              <Lock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Change Master Password</span>
+              <Lock className="w-4 h-4" style={{ color: '#888888' }} />
+              <span className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Change Master Password</span>
             </div>
             
             <div className="space-y-4 max-w-md">
               <div className="space-y-2">
-                <Label htmlFor="current-password" className="text-xs text-muted-foreground">
+                <Label htmlFor="current-password" className="text-xs" style={{ color: '#888888' }}>
                   Current Password
                 </Label>
                 <div className="relative">
@@ -132,12 +136,14 @@ export function SettingsView() {
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="bg-muted/50 border-border pr-10"
+                    className="pr-10"
+                    style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: '#888888' }}
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -145,7 +151,7 @@ export function SettingsView() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-xs text-muted-foreground">
+                <Label htmlFor="new-password" className="text-xs" style={{ color: '#888888' }}>
                   New Password
                 </Label>
                 <div className="relative">
@@ -154,12 +160,14 @@ export function SettingsView() {
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="bg-muted/50 border-border pr-10"
+                    className="pr-10"
+                    style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: '#888888' }}
                   >
                     {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -167,7 +175,7 @@ export function SettingsView() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">
+                <Label htmlFor="confirm-password" className="text-xs" style={{ color: '#888888' }}>
                   Confirm New Password
                 </Label>
                 <Input
@@ -175,12 +183,15 @@ export function SettingsView() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-muted/50 border-border"
+                  style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
                 />
               </div>
 
               {passwordMessage && (
-                <div className={`flex items-center gap-2 text-sm ${passwordMessage.type === 'success' ? 'text-primary' : 'text-destructive'}`}>
+                <div 
+                  className="flex items-center gap-2 text-sm"
+                  style={{ color: passwordMessage.type === 'success' ? '#4ADE80' : '#EF4444' }}
+                >
                   {passwordMessage.type === 'success' ? (
                     <CheckCircle className="w-4 h-4" />
                   ) : (
@@ -194,73 +205,86 @@ export function SettingsView() {
                 onClick={handleChangePassword}
                 disabled={!currentPassword || !newPassword || !confirmPassword}
                 className="mt-2"
+                style={{ backgroundColor: '#4ADE80', color: '#121212' }}
               >
                 Update Password
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* App Preferences */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Monitor className="w-5 h-5 text-primary" />
+      <div 
+        className="rounded-xl p-6"
+        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+      >
+        <div className="mb-6">
+          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
+            <Monitor className="w-5 h-5" style={{ color: '#4ADE80' }} />
             App Preferences
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm mt-1" style={{ color: '#888888' }}>
             Configure application behavior and display settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 rounded-lg bg-muted/30 border border-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                  {pathFormat === 'windows' ? (
-                    <Monitor className="w-5 h-5 text-muted-foreground" />
-                  ) : (
-                    <Apple className="w-5 h-5 text-muted-foreground" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Local Path Format</p>
-                  <p className="text-xs text-muted-foreground">
-                    {pathFormat === 'windows' 
-                      ? 'Windows style: C:\\Projects\\my-project' 
-                      : 'Mac style: /Users/name/Projects/my-project'}
-                  </p>
-                </div>
+          </p>
+        </div>
+        
+        <div 
+          className="p-4 rounded-lg"
+          style={{ backgroundColor: '#252525', border: '1px solid #2a2a2a' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: '#1c1c1c' }}
+              >
+                {pathFormat === 'windows' ? (
+                  <Monitor className="w-5 h-5" style={{ color: '#888888' }} />
+                ) : (
+                  <Apple className="w-5 h-5" style={{ color: '#888888' }} />
+                )}
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">Windows</span>
-                <Switch
-                  checked={pathFormat === 'mac'}
-                  onCheckedChange={(checked) => setPathFormat(checked ? 'mac' : 'windows')}
-                />
-                <span className="text-xs text-primary">Mac</span>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>Local Path Format</p>
+                <p className="text-xs" style={{ color: '#888888' }}>
+                  {pathFormat === 'windows' 
+                    ? 'Windows style: C:\\Projects\\my-project' 
+                    : 'Mac style: /Users/name/Projects/my-project'}
+                </p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs" style={{ color: '#888888' }}>Windows</span>
+              <Switch
+                checked={pathFormat === 'mac'}
+                onCheckedChange={(checked) => setPathFormat(checked ? 'mac' : 'windows')}
+              />
+              <span className="text-xs" style={{ color: '#4ADE80' }}>Mac</span>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* SMTP Configuration */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Server className="w-5 h-5 text-primary" />
+      <div 
+        className="rounded-xl p-6"
+        style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}
+      >
+        <div className="mb-6">
+          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
+            <Server className="w-5 h-5" style={{ color: '#4ADE80' }} />
             SMTP Configuration
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm mt-1" style={{ color: '#888888' }}>
             Configure Brevo/SMTP settings for email notifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </p>
+        </div>
+        
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="smtp-host" className="text-xs text-muted-foreground">
+              <Label htmlFor="smtp-host" className="text-xs" style={{ color: '#888888' }}>
                 SMTP Host
               </Label>
               <Input
@@ -268,11 +292,11 @@ export function SettingsView() {
                 value={smtpHost}
                 onChange={(e) => setSmtpHost(e.target.value)}
                 placeholder="smtp-relay.brevo.com"
-                className="bg-muted/50 border-border"
+                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="smtp-port" className="text-xs text-muted-foreground">
+              <Label htmlFor="smtp-port" className="text-xs" style={{ color: '#888888' }}>
                 Port
               </Label>
               <Input
@@ -280,13 +304,13 @@ export function SettingsView() {
                 value={smtpPort}
                 onChange={(e) => setSmtpPort(e.target.value)}
                 placeholder="587"
-                className="bg-muted/50 border-border"
+                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="smtp-api-key" className="text-xs text-muted-foreground">
+            <Label htmlFor="smtp-api-key" className="text-xs" style={{ color: '#888888' }}>
               API Key
             </Label>
             <div className="relative">
@@ -296,33 +320,39 @@ export function SettingsView() {
                 value={smtpApiKey}
                 onChange={(e) => setSmtpApiKey(e.target.value)}
                 placeholder="xkeysib-xxxxxxxx"
-                className="bg-muted/50 border-border pr-10 font-mono"
+                className="pr-10 font-mono"
+                style={{ backgroundColor: '#252525', borderColor: '#2a2a2a', color: '#f5f5f5' }}
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style={{ color: '#888888' }}
               >
                 {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs" style={{ color: '#888888' }}>
               Get your API key from your Brevo account settings
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Save Button */}
       <div className="flex items-center justify-between pt-4">
         {saveMessage && (
-          <div className="flex items-center gap-2 text-sm text-primary">
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#4ADE80' }}>
             <CheckCircle className="w-4 h-4" />
             {saveMessage}
           </div>
         )}
         <div className="ml-auto">
-          <Button onClick={handleSaveSettings} className="gap-2">
+          <Button 
+            onClick={handleSaveSettings} 
+            className="gap-2"
+            style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+          >
             <Save className="w-4 h-4" />
             Save Settings
           </Button>
