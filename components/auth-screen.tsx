@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Lock, Eye, EyeOff, AlertCircle, User, Mail, ArrowLeft, Send } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle, User, Mail, ArrowLeft, Send, KeyRound, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,20 +14,28 @@ export function AuthScreen() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [signupPending, setSignupPending] = useState(false)
 
   const isFirstTime = !masterPassword
+
+  // Validation helpers
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  const isValidUsername = (username: string) => /^[a-zA-Z0-9]+$/.test(username)
 
   const resetForm = () => {
     setUsername('')
     setEmail('')
     setPassword('')
+    setInviteCode('')
     setError('')
     setShowPassword(false)
     setEmailSent(false)
+    setSignupPending(false)
   }
 
   const handleViewChange = (view: AuthView) => {
@@ -74,37 +82,52 @@ export function AuthScreen() {
 
     await new Promise((r) => setTimeout(r, 500))
 
+    // Username validation - alphanumeric only
     if (!username.trim()) {
       setError('Username is required')
       setIsLoading(false)
       return
     }
 
+    if (!isValidUsername(username)) {
+      setError('Username must be alphanumeric (no spaces or special characters)')
+      setIsLoading(false)
+      return
+    }
+
+    // Email validation
     if (!email.trim()) {
       setError('Email is required')
       setIsLoading(false)
       return
     }
 
-    if (!email.includes('@')) {
+    if (!isValidEmail(email)) {
       setError('Please enter a valid email address')
       setIsLoading(false)
       return
     }
 
+    // Master password validation - minimum 12 characters
     if (!password.trim()) {
       setError('Master password is required')
       setIsLoading(false)
       return
     }
 
-    if (password.length < 4) {
-      setError('Password must be at least 4 characters')
+    if (password.length < 12) {
+      setError('Master password must be at least 12 characters (this is the key to your encrypted vault)')
       setIsLoading(false)
       return
     }
 
-    signup(username, email, password)
+    const result = signup(username, email, password, inviteCode || undefined)
+    
+    if (result.status === 'pending') {
+      setSignupPending(true)
+    }
+    // If active, the store will authenticate and redirect
+    
     setIsLoading(false)
   }
 
@@ -121,7 +144,7 @@ export function AuthScreen() {
       return
     }
 
-    if (!email.includes('@')) {
+    if (!isValidEmail(email)) {
       setError('Please enter a valid email address')
       setIsLoading(false)
       return
@@ -256,14 +279,14 @@ export function AuthScreen() {
       )}
 
       {/* Signup Form */}
-      {authView === 'signup' && (
+      {authView === 'signup' && !signupPending && (
         <form onSubmit={handleSignup} className="w-full max-w-sm space-y-4">
           <div className="relative">
             <Input
               type="text"
-              placeholder="Username"
+              placeholder="Username (alphanumeric only)"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
               className="h-12 pl-12"
               style={{ 
                 backgroundColor: '#1c1c1c', 
@@ -294,7 +317,7 @@ export function AuthScreen() {
           <div className="relative">
             <Input
               type={showPassword ? 'text' : 'password'}
-              placeholder="Master Password"
+              placeholder="Master Password (min 12 chars)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 pl-12 pr-12"
@@ -315,9 +338,42 @@ export function AuthScreen() {
             </button>
           </div>
 
+          {/* Password strength indicator */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 rounded-full" style={{ backgroundColor: '#2a2a2a' }}>
+              <div 
+                className="h-full rounded-full transition-all"
+                style={{ 
+                  width: password.length >= 12 ? '100%' : `${(password.length / 12) * 100}%`,
+                  backgroundColor: password.length >= 12 ? '#4ADE80' : password.length >= 8 ? '#FCD34D' : '#EF4444'
+                }}
+              />
+            </div>
+            <span className="text-xs" style={{ color: password.length >= 12 ? '#4ADE80' : '#888888' }}>
+              {password.length}/12
+            </span>
+          </div>
+
+          {/* Optional Invite Code */}
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Invite Code (optional - for instant access)"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              className="h-12 pl-12"
+              style={{ 
+                backgroundColor: '#1c1c1c', 
+                borderColor: inviteCode ? '#4ADE80' : '#2a2a2a', 
+                color: '#f5f5f5' 
+              }}
+            />
+            <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: inviteCode ? '#4ADE80' : '#888888' }} />
+          </div>
+
           {error && (
             <div className="flex items-center gap-2 text-sm" style={{ color: '#EF4444' }}>
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -333,8 +389,15 @@ export function AuthScreen() {
                 <div className="w-4 h-4 border-2 border-[#121212]/30 border-t-[#121212] rounded-full animate-spin" />
                 <span>Creating Account...</span>
               </div>
-            ) : 'Create Account'}
+            ) : inviteCode ? 'Create Account (Instant Access)' : 'Request Access'}
           </Button>
+
+          <p className="text-xs text-center" style={{ color: '#666666' }}>
+            {inviteCode 
+              ? 'Valid invite code detected - instant access enabled'
+              : 'Without invite code, your account will require admin approval'
+            }
+          </p>
 
           <button
             type="button"
@@ -346,6 +409,41 @@ export function AuthScreen() {
             Back to Login
           </button>
         </form>
+      )}
+
+      {/* Signup Pending Approval State */}
+      {authView === 'signup' && signupPending && (
+        <div className="w-full max-w-sm space-y-4">
+          <div 
+            className="text-center p-6 rounded-xl"
+            style={{ backgroundColor: '#1c1c1c', border: '1px solid #4ADE80' }}
+          >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}>
+              <CheckCircle className="w-8 h-8" style={{ color: '#4ADE80' }} />
+            </div>
+            <h3 className="text-lg font-semibold mb-2" style={{ color: '#f5f5f5' }}>Access Request Sent</h3>
+            <p className="text-sm mb-4" style={{ color: '#888888' }}>
+              Your account is pending administrator approval. You will receive an email via Spacemail once your vault is ready.
+            </p>
+            <div 
+              className="p-3 rounded-lg text-xs"
+              style={{ backgroundColor: '#252525', color: '#888888' }}
+            >
+              <strong style={{ color: '#f5f5f5' }}>Username:</strong> {username}<br />
+              <strong style={{ color: '#f5f5f5' }}>Email:</strong> {email}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleViewChange('login')}
+            className="w-full flex items-center justify-center gap-2 text-sm transition-colors hover:text-[#f5f5f5]"
+            style={{ color: '#888888' }}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Login
+          </button>
+        </div>
       )}
 
       {/* Forgot Password Form */}

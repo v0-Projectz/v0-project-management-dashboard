@@ -6,6 +6,28 @@ import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
 import type { Project } from '@/lib/types'
 
+/**
+ * Tauri 2.0 Hook Placeholder
+ * Replace this function with Rust shell commands when exporting to Tauri desktop.
+ * Example: invoke('open_path', { path }) or shell.open(path)
+ */
+const handleOpenPath = (path: string, action: 'cursor' | 'explorer' | 'terminal' = 'explorer') => {
+  console.log('[Tauri Hook Ready]', action, path)
+  
+  // Web fallback behaviors
+  switch (action) {
+    case 'cursor':
+      window.open(`vscode://file/${path}`, '_blank')
+      break
+    case 'explorer':
+      navigator.clipboard.writeText(path)
+      break
+    case 'terminal':
+      navigator.clipboard.writeText(`cd "${path}"`)
+      break
+  }
+}
+
 interface ProjectGridProps {
   projects: Project[]
   searchQuery: string
@@ -33,11 +55,11 @@ function ProjectListItem({
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
 
   const handleOpenInCursor = () => {
-    window.open(`vscode://file/${project.localPath}`, '_blank')
+    handleOpenPath(project.localPath, 'cursor')
   }
 
   const handleOpenInExplorer = () => {
-    navigator.clipboard.writeText(project.localPath)
+    handleOpenPath(project.localPath, 'explorer')
   }
 
   const handleOpenLiveUrl = () => {

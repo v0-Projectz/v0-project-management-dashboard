@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Users, Plus, Trash2, AlertCircle, CheckCircle } from 'lucide-react'
+import { Users, Plus, Trash2, AlertCircle, CheckCircle, Clock, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,9 +22,13 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  const { users, inviteUser, deleteUser, user } = useAppStore()
+  const { users, inviteUser, deleteUser, updateUserStatus, user } = useAppStore()
 
   const isAdmin = user?.role === 'admin'
+
+  // Separate pending and active users
+  const pendingUsers = users.filter(u => u.status === 'pending')
+  const activeUsers = users.filter(u => u.status === 'active')
 
   const handleInviteUser = () => {
     if (!username.trim() || !email.trim() || !tempPassword.trim()) {
@@ -61,6 +65,17 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
     }
   }
 
+  const handleToggleStatus = (userId: string, currentStatus: 'pending' | 'active') => {
+    const newStatus = currentStatus === 'pending' ? 'active' : 'pending'
+    if (updateUserStatus(userId, newStatus)) {
+      setMessage({ 
+        type: 'success', 
+        text: `User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully` 
+      })
+      setTimeout(() => setMessage(null), 2000)
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl" style={{ backgroundColor: '#1c1c1c', border: '1px solid #2a2a2a' }}>
@@ -72,6 +87,24 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Global Message */}
+          {message && !showInviteForm && (
+            <div 
+              className="flex items-center gap-2 text-sm p-3 rounded-lg"
+              style={{ 
+                backgroundColor: message.type === 'success' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: message.type === 'success' ? '#4ADE80' : '#EF4444' 
+              }}
+            >
+              {message.type === 'success' ? (
+                <CheckCircle className="w-4 h-4" />
+              ) : (
+                <AlertCircle className="w-4 h-4" />
+              )}
+              {message.text}
+            </div>
+          )}
+
           {/* Invite New User Section */}
           {isAdmin && (
             <div className="space-y-4">
@@ -165,14 +198,85 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
             </div>
           )}
 
-          {/* Users List */}
+          {/* Pending Users Section */}
+          {pendingUsers.length > 0 && isAdmin && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium flex items-center gap-2" style={{ color: '#FCD34D' }}>
+                <Clock className="w-4 h-4" />
+                Pending Approval ({pendingUsers.length})
+              </h3>
+              <div className="space-y-2">
+                {pendingUsers.map((u) => (
+                  <div 
+                    key={u.id}
+                    className="flex items-center justify-between p-3 rounded-lg"
+                    style={{ backgroundColor: '#252525', border: '1px solid #FCD34D' }}
+                  >
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                        {u.username}
+                        <span 
+                          className="ml-2 text-xs px-2 py-0.5 rounded uppercase"
+                          style={{ backgroundColor: 'rgba(252, 211, 77, 0.2)', color: '#FCD34D' }}
+                        >
+                          Pending
+                        </span>
+                      </p>
+                      <p className="text-xs" style={{ color: '#888888' }}>{u.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleToggleStatus(u.id, 'pending')}
+                        className="gap-1"
+                        style={{ backgroundColor: '#4ADE80', color: '#121212' }}
+                      >
+                        <ShieldCheck className="w-3 h-3" />
+                        Activate
+                      </Button>
+                      {deleteConfirm === u.id ? (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleDeleteUser(u.id)}
+                            style={{ backgroundColor: '#EF4444', color: '#ffffff' }}
+                          >
+                            Confirm
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => setDeleteConfirm(null)}
+                            style={{ backgroundColor: '#2a2a2a', color: '#f5f5f5' }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirm(u.id)}
+                          className="p-2 rounded-lg transition-colors hover:bg-red-900/20"
+                          style={{ color: '#EF4444' }}
+                          title="Delete user"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active Users List */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
-              Registered Users ({users.length + 1})
+            <h3 className="text-sm font-medium flex items-center gap-2" style={{ color: '#f5f5f5' }}>
+              <ShieldCheck className="w-4 h-4" style={{ color: '#4ADE80' }} />
+              Active Users ({activeUsers.length + 1})
             </h3>
 
             <div className="space-y-2 max-h-72 overflow-y-auto">
-              {/* Current User */}
+              {/* Current User (Admin) */}
               {user && (
                 <div 
                   className="flex items-center justify-between p-3 rounded-lg"
@@ -193,8 +297,8 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                 </div>
               )}
 
-              {/* Other Users */}
-              {users.map((u) => (
+              {/* Other Active Users */}
+              {activeUsers.map((u) => (
                 <div 
                   key={u.id}
                   className="flex items-center justify-between p-3 rounded-lg"
@@ -203,8 +307,11 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                   <div>
                     <p className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
                       {u.username}
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#888888' }}>
-                        {u.role || 'User'}
+                      <span 
+                        className="ml-2 text-xs px-2 py-0.5 rounded"
+                        style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#4ADE80' }}
+                      >
+                        Active
                       </span>
                     </p>
                     <p className="text-xs" style={{ color: '#888888' }}>{u.email}</p>

@@ -13,6 +13,25 @@ import {
 import type { Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+/**
+ * Tauri 2.0 Hook Placeholder
+ * Replace this function with Rust shell commands when exporting to Tauri desktop.
+ */
+const handleOpenPath = (path: string, action: 'cursor' | 'explorer' | 'terminal' = 'explorer') => {
+  console.log('[Tauri Hook Ready]', action, path)
+  switch (action) {
+    case 'cursor':
+      window.open(`vscode://file/${path}`, '_blank')
+      break
+    case 'explorer':
+      navigator.clipboard.writeText(path)
+      break
+    case 'terminal':
+      navigator.clipboard.writeText(`cd "${path}"`)
+      break
+  }
+}
+
 interface ProjectCardProps {
   project: Project
   onSelect: () => void
@@ -23,11 +42,11 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onSelect, onDelete, onOpenVault, onEdit }: ProjectCardProps) {
   const handleOpenInCursor = () => {
-    window.open(`vscode://file/${project.localPath}`, '_blank')
+    handleOpenPath(project.localPath, 'cursor')
   }
 
   const handleOpenInExplorer = () => {
-    navigator.clipboard.writeText(project.localPath)
+    handleOpenPath(project.localPath, 'explorer')
   }
 
   const handleOpenLiveUrl = () => {

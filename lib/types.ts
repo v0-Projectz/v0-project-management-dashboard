@@ -52,8 +52,11 @@ export interface User {
   role?: 'admin' | 'user'
 }
 
+export type UserStatus = 'pending' | 'active'
+
 export interface RegisteredUser extends User {
   id: string
+  status: UserStatus
   createdAt: Date
 }
 

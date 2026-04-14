@@ -321,21 +321,28 @@ export function HelpView() {
       title: 'Adding New Users (Admin Approval)',
       icon: <Users className="w-5 h-5" />,
       description: 'Process for requesting and approving new user accounts',
+      adminNote: {
+        title: 'Admin Strategy Note',
+        content: 'Admin Tip: New signups are locked by default. To grant access, navigate to Settings > User Management and toggle the status from "Pending" to "Active". Use the Spacemail SMTP test button to ensure your notification system is online before inviting external users.'
+      },
       content: [
         'For New Users:',
-        '1. Contact your system administrator',
-        '2. Provide your name, email, and reason for access',
-        '3. Wait for admin approval notification',
-        '4. Receive credentials via secure channel',
-        '5. Log in and set your own master password',
+        '1. Go to the signup page and fill out the form',
+        '2. Username must be alphanumeric (no spaces)',
+        '3. Master password must be at least 12 characters',
+        '4. Optional: Enter an Invite Code for instant access',
+        '5. Without invite code, account is set to "Pending"',
+        '6. Wait for admin approval via Spacemail notification',
         '',
         'For Administrators:',
-        '1. Verify user identity and access requirements',
-        '2. Create account with temporary password',
-        '3. Send credentials via encrypted email',
-        '4. Revoke temporary access after first login',
+        '1. Check Settings > User Management for pending users',
+        '2. Verify user identity before activation',
+        '3. Toggle user status from "Pending" to "Active"',
+        '4. User will receive activation email via Spacemail',
         '',
-        'Note: All new accounts require admin approval for security.',
+        'Invite Code Bypass:',
+        'Share your admin invite code (VADER-2026) for instant access.',
+        'This skips the approval process for trusted partners.',
       ],
     },
   ]
@@ -582,6 +589,35 @@ export function HelpView() {
                                 )}
                               </button>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Admin Strategy Note Callout */}
+                    {item.adminNote && (
+                      <div 
+                        className="p-4 rounded-lg mb-4"
+                        style={{ 
+                          backgroundColor: '#222222', 
+                          border: '1px solid #4ADE80',
+                          boxShadow: '0 0 8px rgba(74, 222, 128, 0.1)'
+                        }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div 
+                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: 'rgba(74, 222, 128, 0.2)' }}
+                          >
+                            <Shield className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold mb-1" style={{ color: '#4ADE80' }}>
+                              {item.adminNote.title}
+                            </h4>
+                            <p className="text-sm leading-relaxed" style={{ color: '#f5f5f5' }}>
+                              {item.adminNote.content}
+                            </p>
                           </div>
                         </div>
                       </div>

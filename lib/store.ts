@@ -19,7 +19,7 @@ interface AppState {
   setMasterPassword: (password: string) => void
   changeMasterPassword: (oldPassword: string, newPassword: string) => boolean
   login: (username: string, password: string) => boolean
-  signup: (username: string, email: string, password: string) => boolean
+  signup: (username: string, email: string, password: string, inviteCode?: string) => { success: boolean; status: 'pending' | 'active' }
   logout: () => void
   setAuthView: (view: AuthView) => void
   
@@ -27,6 +27,7 @@ interface AppState {
   updateUser: (updates: Partial<User>) => void
   inviteUser: (username: string, email: string, tempPassword: string) => void
   deleteUser: (userId: string) => boolean
+  updateUserStatus: (userId: string, status: 'pending' | 'active') => boolean
   getUsers: () => RegisteredUser[]
   
   // Navigation
@@ -114,14 +115,36 @@ export const useAppStore = create<AppState>()(
         return false
       },
       
-      signup: (username, email, password) => {
-        set({ 
-          isAuthenticated: true, 
-          masterPassword: password,
-          user: { username, email, role: 'admin' },
-          authView: 'login'
-        })
-        return true
+      signup: (username, email, password, inviteCode?: string) => {
+        const ADMIN_INVITE_CODE = 'VADER-2026'
+        const isInstantAccess = inviteCode === ADMIN_INVITE_CODE
+        
+        if (isInstantAccess) {
+          // Instant access with valid invite code
+          set({ 
+            isAuthenticated: true, 
+            masterPassword: password,
+            user: { username, email, role: 'user' },
+            authView: 'login'
+          })
+          return { success: true, status: 'active' as const }
+        } else {
+          // Pending approval - don't authenticate yet
+          const newUser: RegisteredUser = {
+            id: generateId(),
+            username,
+            email,
+            role: 'user',
+            status: 'pending',
+            createdAt: new Date(),
+          }
+          set((state) => ({
+            users: [...state.users, newUser],
+            authView: 'login'
+          }))
+          // Placeholder: SMTP notification to admin via Spacemail
+          return { success: true, status: 'pending' as const }
+        }
       },
       
       logout: () => set({ isAuthenticated: false, currentView: 'dashboard' }),
@@ -140,6 +163,7 @@ export const useAppStore = create<AppState>()(
           username,
           email,
           role: 'user',
+          status: 'active', // Admin-created users are active by default
           createdAt: new Date(),
         }
         set((state) => ({
@@ -153,6 +177,20 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             users: state.users.filter(u => u.id !== userId),
           }))
+          return true
+        }
+        return false
+      },
+      
+      updateUserStatus: (userId, status) => {
+        const { users } = get()
+        if (users.some(u => u.id === userId)) {
+          set((state) => ({
+            users: state.users.map(u => 
+              u.id === userId ? { ...u, status } : u
+            ),
+          }))
+          // Placeholder for Spacemail SMTP notification to user
           return true
         }
         return false
